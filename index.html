@@ -37,7 +37,10 @@
   pointer-events: none;
 }
 
-.screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+.screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; animation: fadeInUp 0.35s ease; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseGlow { 0%,100% { box-shadow: 0 0 14px rgba(242,181,0,0.4); } 50% { box-shadow: 0 0 22px rgba(242,181,0,0.75); } }
+@keyframes cardPop { from { opacity: 0; transform: scale(0.7) translateY(14px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
 /* ---------- HOME ---------- */
 .home-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 18px; gap: 26px; }
@@ -138,7 +141,7 @@
   background: rgba(0,0,0,0.28); border-radius: 30px; padding: 6px 12px 6px 6px;
   border: 2px solid transparent; transition: all 0.2s ease;
 }
-.player-chip.active-turn { border-color: var(--gold); background: rgba(242,181,0,0.18); box-shadow: 0 0 14px rgba(242,181,0,0.4); }
+.player-chip.active-turn { border-color: var(--gold); background: rgba(242,181,0,0.18); animation: pulseGlow 1.6s ease-in-out infinite; }
 .player-chip .avatar { width: 30px; height: 30px; font-size: 13px; }
 .player-chip .pname { font-size: 12.5px; font-weight: 600; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .player-chip .cardcount { font-size: 11px; opacity: 0.75; font-weight: 600; }
@@ -204,9 +207,10 @@
 .hand-scroll {
   display: flex; gap: -18px; overflow-x: auto; padding: 6px 20px 8px; -webkit-overflow-scrolling: touch;
 }
-.hand-card-wrap { margin-right: -22px; transition: transform 0.15s ease; flex-shrink: 0; }
+.hand-card-wrap { margin-right: -22px; transition: transform 0.15s ease; flex-shrink: 0; animation: cardPop 0.3s ease backwards; }
 .hand-card-wrap:last-child { margin-right: 0; }
 .hand-card-wrap.playable { cursor: pointer; }
+.hand-card-wrap.playable:hover { transform: translateY(-10px); }
 .hand-card-wrap.playable:active { transform: translateY(-14px); }
 .hand-card-wrap .card { width: 62px; height: 90px; }
 .hand-card-wrap .card .card-value { font-size: 24px; }
@@ -237,8 +241,38 @@
 
 <div class="uno-root" id="unoRoot"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <script>
 (function(){
+  // ============================================================
+  // STEP 1: Paste your own Supabase project details here.
+  // Free setup (takes ~3 mins): https://supabase.com
+  //   1. Create a project (free plan is enough)
+  //   2. Go to SQL Editor and run this once (creates the table + realtime + public access):
+  //
+  //      create table game_state (
+  //        key text primary key,
+  //        value jsonb,
+  //        updated_at timestamptz default now()
+  //      );
+  //      alter publication supabase_realtime add table game_state;
+  //      alter table game_state enable row level security;
+  //      create policy "public access" on game_state for all using (true) with check (true);
+  //
+  //   3. Go to Project Settings > API > copy "Project URL" and "anon public" key
+  //   4. Paste them below, replacing the placeholders, then redeploy to GitHub Pages
+  // ============================================================
+  const supabaseConfig = {
+    url: "https://kvswkmsexzoqzbrgojsc.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c3drbXNleHpvcXpicmdvanNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1OTc5MjgsImV4cCI6MjEwMTE3MzkyOH0.kgmnfce6_7wRSOQwVoFmhsQm5teGDzgPS8xEbn_cESQ",
+  };
+
+  const isConfigured = supabaseConfig.url !== "YOUR_SUPABASE_URL" && !!supabaseConfig.url && !!supabaseConfig.anonKey;
+  let sb = null;
+  if(isConfigured){
+    sb = window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey);
+  }
   const COLORS = ['red','yellow','green','blue'];
   const AVATAR_COLORS = ['#e0442c','#2166d6','#3a9b52','#f2b500','#9b59b6','#e67e22','#1abc9c','#e84393','#00b894','#6c5ce7','#d35400','#0984e3'];
   const root = document.getElementById('unoRoot');
@@ -254,7 +288,8 @@
     joinError: '',
     homeMode: 'create', // create | join
     colorPickerFor: null, // pending card object needing color choice
-    pollTimer: null,
+    roomChannel: null,
+    handChannel: null,
     busy: false
   };
 
@@ -265,14 +300,16 @@
   function discardKey(code){ return `discard:${code}`; }
 
   async function storeGet(key){
-    try {
-      const r = await window.storage.get(key, true);
-      return r ? JSON.parse(r.value) : null;
-    } catch(e){ return null; }
+    if(!sb) return null;
+    const { data, error } = await sb.from('game_state').select('value').eq('key', key).maybeSingle();
+    if(error || !data) return null;
+    return data.value;
   }
   async function storeSet(key, val){
-    try { await window.storage.set(key, JSON.stringify(val), true); return true; }
-    catch(e){ console.error('storage set failed', e); return false; }
+    if(!sb) return false;
+    const { error } = await sb.from('game_state').upsert({ key, value: val, updated_at: new Date().toISOString() });
+    if(error){ console.error('supabase set failed', error); return false; }
+    return true;
   }
 
   function buildDeck(){
@@ -396,7 +433,7 @@
     state.myId = myId; state.roomCode = code; state.isHost = true; state.room = room;
     state.busy = false; state.screen = 'lobby';
     render();
-    startPolling();
+    startListening();
   }
 
   async function joinRoom(){
@@ -420,7 +457,7 @@
     state.myId = myId; state.roomCode = code; state.isHost = false; state.room = room;
     state.busy = false; state.screen = 'lobby';
     render();
-    startPolling();
+    startListening();
   }
 
   // ---------------- LOBBY ----------------
@@ -774,28 +811,46 @@
       </div>
     `;
     document.getElementById('backHomeBtn').addEventListener('click', ()=>{
-      stopPolling();
+      stopListening();
       state = {screen:'home', roomCode:'', myId:null, myName: state.myName, isHost:false, room:null, myHand:[], joinError:'', homeMode:'create', colorPickerFor:null, pollTimer:null, busy:false};
       render();
     });
   }
 
-  // ---------------- POLLING ----------------
-  function startPolling(){
-    stopPolling();
-    state.pollTimer = setInterval(pollRoom, 2200);
-  }
-  function stopPolling(){
-    if(state.pollTimer) clearInterval(state.pollTimer);
-    state.pollTimer = null;
-  }
-  async function pollRoom(){
-    if(!state.roomCode || state.busy) return;
-    const room = await storeGet(roomKey(state.roomCode));
-    if(!room) return;
-    const changed = !state.room || room.turnToken !== state.room.turnToken;
-    if(!changed) return;
+  // ---------------- REAL-TIME LISTENERS (with polling safety-net) ----------------
+  function startListening(){
+    stopListening();
+    if(!sb) return;
 
+    state.roomChannel = sb.channel(`room-${state.roomCode}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'game_state', filter: `key=eq.${roomKey(state.roomCode)}` }, payload => {
+        const room = payload.new && payload.new.value;
+        if(!room || state.busy) return;
+        applyRoomUpdate(room);
+      })
+      .subscribe();
+
+    state.handChannel = sb.channel(`hand-${state.roomCode}-${state.myId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'game_state', filter: `key=eq.${handKey(state.roomCode, state.myId)}` }, payload => {
+        const h = payload.new && payload.new.value;
+        if(state.busy) return;
+        state.myHand = h || [];
+        if(state.screen === 'game') render();
+      })
+      .subscribe();
+
+    // Safety-net poll in case realtime replication isn't enabled on the table
+    state.pollTimer = setInterval(async () => {
+      if(!state.roomCode || state.busy) return;
+      const room = await storeGet(roomKey(state.roomCode));
+      if(room && (!state.room || room.turnToken !== state.room.turnToken)) applyRoomUpdate(room);
+      if(state.screen === 'game'){
+        const h = await storeGet(handKey(state.roomCode, state.myId));
+        if(h) { state.myHand = h; render(); }
+      }
+    }, 3000);
+  }
+  function applyRoomUpdate(room){
     state.room = room;
     if(room.status === 'playing' && state.screen === 'lobby'){
       state.screen = 'game';
@@ -803,13 +858,57 @@
     if(room.status === 'finished' && state.screen !== 'gameover'){
       state.screen = 'gameover';
     }
-    if(room.status === 'playing' || room.status === 'finished'){
-      const h = await storeGet(handKey(state.roomCode, state.myId));
-      if(h) state.myHand = h;
-    }
     render();
   }
+  function stopListening(){
+    if(state.roomChannel) sb.removeChannel(state.roomChannel);
+    if(state.handChannel) sb.removeChannel(state.handChannel);
+    if(state.pollTimer) clearInterval(state.pollTimer);
+    state.roomChannel = null;
+    state.handChannel = null;
+    state.pollTimer = null;
+  }
 
-  render();
+  // ---------------- SETUP SCREEN (shown until Supabase config is filled in) ----------------
+  function renderSetupNeeded(){
+    root.innerHTML = `
+      <div class="screen">
+        <div class="home-wrap">
+          <div class="logo-badge"><span>UNO</span></div>
+          <div class="home-title">Setup Zaroori Hai</div>
+          <div class="panel">
+            <h2>Ek free database jodni hogi</h2>
+            <p class="small-muted" style="line-height:1.6; text-align:left;">
+              Alag-alag phones/devices ke beech live sync karne ke liye is game ko ek free
+              <b>Supabase</b> project chahiye (GitHub Pages sirf static files serve karta hai, backend nahi).
+              <br><br>
+              <b>3 minute mein setup:</b><br>
+              1. <b>supabase.com</b> par jaake naya project banayein (free)<br>
+              2. SQL Editor kholein, ye query run karein (ek hi baar):
+              <br><br>
+              <code style="display:block; background:rgba(0,0,0,0.35); padding:10px; border-radius:8px; font-size:11px; white-space:pre-wrap; margin:6px 0;">create table game_state (
+  key text primary key,
+  value jsonb,
+  updated_at timestamptz default now()
+);
+alter publication supabase_realtime add table game_state;
+alter table game_state enable row level security;
+create policy "public access" on game_state
+  for all using (true) with check (true);</code>
+              3. ⚙️ Project Settings → API → "Project URL" aur "anon public" key copy karein<br>
+              4. HTML file ke <code>supabaseConfig</code> object mein paste karein, save karein, dobara GitHub Pages par push karein
+            </p>
+          </div>
+          <p class="home-note">Ye ek baar ka setup hai — uske baad 12 log alag alag phones se live khel sakte hain.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  if(!isConfigured){
+    renderSetupNeeded();
+  } else {
+    render();
+  }
 })();
 </script>
