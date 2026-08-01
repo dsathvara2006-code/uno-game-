@@ -1,0 +1,815 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; }
+
+.uno-root {
+  --felt-dark: #0a3d2b;
+  --felt: #0f5a3f;
+  --felt-light: #147049;
+  --red: #e0442c;
+  --yellow: #f2b500;
+  --green: #3a9b52;
+  --blue: #2166d6;
+  --wild: #1c1c1e;
+  --card-face: #fbfaf5;
+  --ink: #14231c;
+  --paper: #f4f1ea;
+  --gold: #f2b500;
+
+  font-family: 'Inter', sans-serif;
+  color: var(--paper);
+  background: radial-gradient(ellipse at 50% 20%, var(--felt-light), var(--felt) 55%, var(--felt-dark) 100%);
+  min-height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.uno-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+.screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ---------- HOME ---------- */
+.home-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 18px; gap: 26px; }
+
+.logo-badge {
+  width: 132px; height: 92px;
+  background: var(--red);
+  border-radius: 50% / 60%;
+  transform: rotate(-9deg);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 0 rgba(0,0,0,0.25), 0 14px 24px rgba(0,0,0,0.4);
+  border: 4px solid var(--card-face);
+}
+.logo-badge span {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 40px;
+  color: var(--card-face);
+  transform: rotate(9deg);
+  letter-spacing: 1px;
+}
+.home-title { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.9; margin-top: -6px;}
+
+.panel {
+  background: rgba(10, 30, 22, 0.55);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+  border-radius: 20px;
+  padding: 22px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+.panel h2 { font-family: 'Baloo 2', sans-serif; font-size: 19px; margin: 0 0 14px; color: var(--paper); }
+.field-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.65; margin-bottom: 6px; display:block; font-weight: 600; }
+.uno-input {
+  width: 100%; padding: 13px 14px; border-radius: 12px; border: none;
+  background: var(--paper); color: var(--ink); font-size: 16px; font-family: 'Inter', sans-serif; font-weight: 600;
+  margin-bottom: 14px; outline: none; letter-spacing: 0.5px;
+}
+.uno-input::placeholder { color: #8a8578; font-weight: 400; }
+.uno-input:focus { box-shadow: 0 0 0 3px var(--gold); }
+
+.uno-btn {
+  width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+  font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.5px;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+.uno-btn:active { transform: scale(0.97); }
+.uno-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.uno-btn-primary { background: var(--red); color: var(--card-face); box-shadow: 0 5px 0 #a8321f; }
+.uno-btn-primary:active:not(:disabled) { box-shadow: 0 2px 0 #a8321f; }
+.uno-btn-outline { background: transparent; color: var(--paper); border: 2px solid rgba(255,255,255,0.35); }
+.uno-btn-gold { background: var(--gold); color: #3a2900; box-shadow: 0 5px 0 #a87c00; }
+.uno-btn-gold:active:not(:disabled) { box-shadow: 0 2px 0 #a87c00; }
+.uno-btn-small { padding: 9px 16px; font-size: 13px; width: auto; border-radius: 10px; }
+
+.divider-or { display: flex; align-items: center; gap: 10px; margin: 18px 0; opacity: 0.5; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+.divider-or::before, .divider-or::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.3); }
+
+.home-note { max-width: 340px; text-align: center; font-size: 12.5px; opacity: 0.55; line-height: 1.5; padding: 0 10px; }
+.error-msg { color: #ffb3a7; font-size: 13px; margin-top: -6px; margin-bottom: 12px; font-weight: 600; min-height: 16px; }
+
+/* ---------- LOBBY ---------- */
+.lobby-header { text-align: center; padding: 30px 20px 10px; }
+.room-code-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(0,0,0,0.25); border: 2px dashed var(--gold);
+  padding: 10px 18px; border-radius: 14px; margin-top: 10px;
+}
+.room-code-chip span.code { font-family: 'Baloo 2', sans-serif; font-size: 26px; letter-spacing: 6px; color: var(--gold); font-weight: 700; }
+.copy-hint { font-size: 11px; opacity: 0.6; margin-top: 6px; }
+
+.lobby-players { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 12px; max-width: 460px; margin: 0 auto; width: 100%; }
+.lobby-player-row {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.06); border-radius: 14px; padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 17px; color: #fff;
+}
+.lobby-player-row .pname { font-weight: 600; flex: 1; }
+.host-tag { font-size: 10px; background: var(--gold); color: #3a2900; padding: 3px 8px; border-radius: 20px; font-weight: 700; letter-spacing: 0.5px; }
+.lobby-footer { padding: 18px 20px 30px; max-width: 460px; margin: 0 auto; width: 100%; }
+.lobby-hint { text-align: center; font-size: 12.5px; opacity: 0.6; margin-top: 10px; }
+
+/* ---------- GAME ---------- */
+.game-top {
+  display: flex; gap: 8px; overflow-x: auto; padding: 12px 10px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.game-top::-webkit-scrollbar { display: none; }
+.player-chip {
+  flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+  background: rgba(0,0,0,0.28); border-radius: 30px; padding: 6px 12px 6px 6px;
+  border: 2px solid transparent; transition: all 0.2s ease;
+}
+.player-chip.active-turn { border-color: var(--gold); background: rgba(242,181,0,0.18); box-shadow: 0 0 14px rgba(242,181,0,0.4); }
+.player-chip .avatar { width: 30px; height: 30px; font-size: 13px; }
+.player-chip .pname { font-size: 12.5px; font-weight: 600; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-chip .cardcount { font-size: 11px; opacity: 0.75; font-weight: 600; }
+.uno-flag { font-size: 9px; background: var(--red); padding: 2px 6px; border-radius: 8px; font-weight: 700; margin-left: 2px;}
+
+.table-area {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; padding: 10px 20px 20px; position: relative;
+}
+.direction-indicator { font-size: 13px; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; display:flex; align-items:center; gap:6px;}
+.pile-row { display: flex; align-items: center; gap: 34px; }
+
+.card {
+  width: 74px; height: 106px; border-radius: 10px; position: relative;
+  background: var(--card-face); box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid rgba(255,255,255,0.9);
+  flex-shrink: 0;
+}
+.card .card-inner-oval {
+  position: absolute; width: 90%; height: 62%; background: rgba(255,255,255,0.88);
+  border-radius: 50%; transform: rotate(-20deg);
+}
+.card .card-value {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; z-index: 2;
+  color: var(--ink); text-shadow: 1px 1px 0 rgba(0,0,0,0.08);
+}
+.card.c-red { background: var(--red); } .card.c-red .card-inner-oval{background:rgba(255,255,255,0.9);} .card.c-red .card-value{color:var(--red);}
+.card.c-yellow { background: var(--yellow); } .card.c-yellow .card-value{color:var(--yellow);}
+.card.c-green { background: var(--green); } .card.c-green .card-value{color:var(--green);}
+.card.c-blue { background: var(--blue); } .card.c-blue .card-value{color:var(--blue);}
+.card.c-wild { background: var(--wild); border-color: rgba(255,255,255,0.7); }
+.card.c-wild .card-inner-oval { display: none; }
+.card.c-wild .quad { position:absolute; width:50%; height:50%; }
+.card.c-wild .q1{background:var(--red); top:0; left:0; border-radius: 10px 0 0 0;} .card.c-wild .q2{background:var(--blue); top:0; right:0; border-radius:0 6px 0 0;}
+.card.c-wild .q3{background:var(--yellow); bottom:0; left:0; border-radius:0 0 0 6px;} .card.c-wild .q4{background:var(--green); bottom:0; right:0; border-radius:0 0 10px 0;}
+.card.c-wild .card-value { z-index: 3; color: #fff; font-size: 15px; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+
+.card-back {
+  width: 74px; height: 106px; border-radius: 10px; background: linear-gradient(135deg, #1c1c1e, #3a2f00 140%);
+  border: 3px solid var(--red); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35); position: relative; flex-shrink:0;
+}
+.card-back .oval-back { width: 60%; height: 42%; background: var(--red); border-radius: 50%; transform: rotate(-20deg); display:flex; align-items:center; justify-content:center;}
+.card-back .oval-back span { font-family:'Baloo 2', sans-serif; font-weight:800; color:#fff; font-size:18px; transform:rotate(20deg);}
+.deck-stack { position: relative; cursor: pointer; }
+.deck-stack .count-badge {
+  position: absolute; bottom: -10px; right: -10px; background: var(--gold); color: #3a2900;
+  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 2px solid var(--felt-dark);
+}
+.deck-stack:active { transform: scale(0.96); }
+
+.turn-banner { text-align: center; font-family: 'Baloo 2', sans-serif; font-size: 16px; min-height: 22px; color: var(--gold); }
+.turn-banner.my-turn { color: #9dffb0; }
+
+.action-log { font-size: 11.5px; opacity: 0.55; text-align: center; min-height: 16px; padding: 0 20px;}
+
+.hand-area {
+  padding: 10px 0 max(14px, env(safe-area-inset-bottom)); background: rgba(0,0,0,0.22);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.hand-controls { display: flex; justify-content: center; gap: 10px; padding: 0 16px 10px; }
+.hand-scroll {
+  display: flex; gap: -18px; overflow-x: auto; padding: 6px 20px 8px; -webkit-overflow-scrolling: touch;
+}
+.hand-card-wrap { margin-right: -22px; transition: transform 0.15s ease; flex-shrink: 0; }
+.hand-card-wrap:last-child { margin-right: 0; }
+.hand-card-wrap.playable { cursor: pointer; }
+.hand-card-wrap.playable:active { transform: translateY(-14px); }
+.hand-card-wrap .card { width: 62px; height: 90px; }
+.hand-card-wrap .card .card-value { font-size: 24px; }
+.hand-card-wrap.dim .card { filter: brightness(0.55) saturate(0.6); }
+.hand-empty-msg { text-align: center; font-size: 13px; opacity: 0.6; padding: 20px; }
+
+/* color picker modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px;}
+.color-picker { background: rgba(15,90,63,0.97); border-radius: 20px; padding: 26px; text-align: center; border: 1px solid rgba(255,255,255,0.15); max-width: 320px; width: 100%;}
+.color-picker h3 { font-family: 'Baloo 2', sans-serif; margin: 0 0 18px; font-size: 18px; }
+.color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.color-swatch { height: 64px; border-radius: 14px; cursor: pointer; border: 3px solid rgba(255,255,255,0.5); transition: transform 0.1s; }
+.color-swatch:active { transform: scale(0.94); }
+
+/* gameover */
+.gameover-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 18px; text-align: center; padding: 20px;}
+.trophy { font-size: 60px; }
+.winner-name { font-family: 'Baloo 2', sans-serif; font-size: 26px; color: var(--gold); }
+
+.badge-connect { font-size: 11px; opacity: 0.5; text-align:center; padding: 6px 0 0;}
+.small-muted { font-size: 12px; opacity: 0.6; }
+
+@media (min-width: 600px) {
+  .card { width: 84px; height: 120px; } .card .card-value { font-size: 34px; }
+  .card-back { width: 84px; height: 120px; }
+}
+</style>
+
+<div class="uno-root" id="unoRoot"></div>
+
+<script>
+(function(){
+  const COLORS = ['red','yellow','green','blue'];
+  const AVATAR_COLORS = ['#e0442c','#2166d6','#3a9b52','#f2b500','#9b59b6','#e67e22','#1abc9c','#e84393','#00b894','#6c5ce7','#d35400','#0984e3'];
+  const root = document.getElementById('unoRoot');
+
+  let state = {
+    screen: 'home',
+    roomCode: '',
+    myId: null,
+    myName: '',
+    isHost: false,
+    room: null,
+    myHand: [],
+    joinError: '',
+    homeMode: 'create', // create | join
+    colorPickerFor: null, // pending card object needing color choice
+    pollTimer: null,
+    busy: false
+  };
+
+  function uid(){ return 'p' + Math.random().toString(36).slice(2,9); }
+  function roomKey(code){ return `room:${code}`; }
+  function handKey(code, pid){ return `hand:${code}:${pid}`; }
+  function deckKey(code){ return `deck:${code}`; }
+  function discardKey(code){ return `discard:${code}`; }
+
+  async function storeGet(key){
+    try {
+      const r = await window.storage.get(key, true);
+      return r ? JSON.parse(r.value) : null;
+    } catch(e){ return null; }
+  }
+  async function storeSet(key, val){
+    try { await window.storage.set(key, JSON.stringify(val), true); return true; }
+    catch(e){ console.error('storage set failed', e); return false; }
+  }
+
+  function buildDeck(){
+    const deck = [];
+    COLORS.forEach(c => {
+      deck.push({color:c, value:'0'});
+      for(let i=0;i<2;i++){
+        ['1','2','3','4','5','6','7','8','9','skip','reverse','draw2'].forEach(v=>{
+          deck.push({color:c, value:v});
+        });
+      }
+    });
+    for(let i=0;i<4;i++){ deck.push({color:'wild', value:'wild'}); deck.push({color:'wild', value:'wild4'}); }
+    // shuffle
+    for(let i=deck.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [deck[i],deck[j]] = [deck[j],deck[i]];
+    }
+    return deck.map((c,i)=>({...c, id: c.color+'-'+c.value+'-'+i}));
+  }
+
+  function cardLabel(card){
+    if(card.value==='skip') return '⊘';
+    if(card.value==='reverse') return '⇄';
+    if(card.value==='draw2') return '+2';
+    if(card.value==='wild4') return '+4';
+    if(card.value==='wild') return '★';
+    return card.value;
+  }
+
+  function renderCardHTML(card, big){
+    if(card.color==='wild'){
+      return `<div class="card c-wild">
+        <div class="quad q1"></div><div class="quad q2"></div><div class="quad q3"></div><div class="quad q4"></div>
+        <div class="card-value">${cardLabel(card)}</div>
+      </div>`;
+    }
+    return `<div class="card c-${card.color}"><div class="card-inner-oval"></div><div class="card-value">${cardLabel(card)}</div></div>`;
+  }
+
+  function initials(name){ return (name||'?').trim().slice(0,2).toUpperCase(); }
+  function avatarColor(pid, room){
+    const idx = room && room.players ? room.players.findIndex(p=>p.id===pid) : 0;
+    return AVATAR_COLORS[(idx<0?0:idx) % AVATAR_COLORS.length];
+  }
+
+  function render(){
+    if(state.screen === 'home') return renderHome();
+    if(state.screen === 'lobby') return renderLobby();
+    if(state.screen === 'game') return renderGame();
+    if(state.screen === 'gameover') return renderGameOver();
+  }
+
+  // ---------------- HOME ----------------
+  function renderHome(){
+    root.innerHTML = `
+      <div class="screen">
+        <div class="home-wrap">
+          <div class="logo-badge"><span>UNO</span></div>
+          <div class="home-title">Party Play</div>
+
+          <div class="panel">
+            <h2>${state.homeMode === 'create' ? 'Naya room banaye' : 'Room join kare'}</h2>
+            <label class="field-label">Aapka naam</label>
+            <input class="uno-input" id="nameInput" placeholder="e.g. Rahul" maxlength="16" value="${state.myName || ''}"/>
+            ${state.homeMode === 'join' ? `
+              <label class="field-label">Room code</label>
+              <input class="uno-input" id="codeInput" placeholder="e.g. 4F2K" maxlength="5" style="text-transform:uppercase; letter-spacing:3px;" value="${state.roomCode||''}"/>
+            ` : ''}
+            <div class="error-msg">${state.joinError||''}</div>
+            <button class="uno-btn uno-btn-primary" id="mainActionBtn" ${state.busy?'disabled':''}>${state.busy ? 'Ek second...' : (state.homeMode==='create' ? 'Room Banaye' : 'Join Kare')}</button>
+            <div class="divider-or">ya</div>
+            <button class="uno-btn uno-btn-outline" id="switchModeBtn">${state.homeMode==='create' ? 'Room code se Join karein' : 'Naya room banaye'}</button>
+          </div>
+
+          <p class="home-note">2 se 12 players ek saath khel sakte hain — sabko same room code enter karna hoga, apne apne phone se. Room banane ke baad code share karein dosto ke saath.</p>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('nameInput').addEventListener('input', e => state.myName = e.target.value);
+    if(state.homeMode==='join'){
+      document.getElementById('codeInput').addEventListener('input', e => { state.roomCode = e.target.value.toUpperCase(); });
+    }
+    document.getElementById('switchModeBtn').addEventListener('click', ()=>{
+      state.homeMode = state.homeMode==='create' ? 'join' : 'create';
+      state.joinError='';
+      render();
+    });
+    document.getElementById('mainActionBtn').addEventListener('click', ()=>{
+      if(state.homeMode==='create') createRoom(); else joinRoom();
+    });
+  }
+
+  async function createRoom(){
+    const name = (state.myName||'').trim();
+    if(!name){ state.joinError = 'Pehle apna naam likhein'; render(); return; }
+    state.busy = true; render();
+
+    let code;
+    let attempts = 0;
+    do {
+      code = Math.random().toString(36).slice(2,6).toUpperCase();
+      attempts++;
+    } while(await storeGet(roomKey(code)) && attempts < 5);
+
+    const myId = uid();
+    const room = {
+      code, status: 'lobby',
+      players: [{id: myId, name, handCount: 0, saidUno:false}],
+      hostId: myId,
+      currentPlayerIndex: 0, direction: 1,
+      discardTop: null,
+      deckCount: 0,
+      lastAction: `${name} ne room banaya`,
+      winnerId: null,
+      turnToken: 0
+    };
+    await storeSet(roomKey(code), room);
+
+    state.myId = myId; state.roomCode = code; state.isHost = true; state.room = room;
+    state.busy = false; state.screen = 'lobby';
+    render();
+    startPolling();
+  }
+
+  async function joinRoom(){
+    const name = (state.myName||'').trim();
+    const code = (state.roomCode||'').trim().toUpperCase();
+    if(!name){ state.joinError = 'Pehle apna naam likhein'; render(); return; }
+    if(!code){ state.joinError = 'Room code daalein'; render(); return; }
+    state.busy = true; render();
+
+    const room = await storeGet(roomKey(code));
+    if(!room){ state.busy=false; state.joinError = 'Ye room code nahi mila'; render(); return; }
+    if(room.status !== 'lobby'){ state.busy=false; state.joinError = 'Ye game already shuru ho chuka hai'; render(); return; }
+    if(room.players.length >= 12){ state.busy=false; state.joinError = 'Room full hai (max 12)'; render(); return; }
+
+    const myId = uid();
+    room.players.push({id: myId, name, handCount: 0, saidUno:false});
+    room.lastAction = `${name} room me aaya`;
+    room.turnToken = (room.turnToken||0)+1;
+    await storeSet(roomKey(code), room);
+
+    state.myId = myId; state.roomCode = code; state.isHost = false; state.room = room;
+    state.busy = false; state.screen = 'lobby';
+    render();
+    startPolling();
+  }
+
+  // ---------------- LOBBY ----------------
+  function renderLobby(){
+    const room = state.room;
+    const players = room.players || [];
+    root.innerHTML = `
+      <div class="screen">
+        <div class="lobby-header">
+          <div class="home-title">Lobby</div>
+          <div class="room-code-chip"><span class="code">${room.code}</span></div>
+          <div class="copy-hint">Ye code dosto ko bhejein taaki wo join kar sakein</div>
+        </div>
+        <div class="lobby-players">
+          ${players.map(p => `
+            <div class="lobby-player-row">
+              <div class="avatar" style="background:${avatarColor(p.id, room)}">${initials(p.name)}</div>
+              <div class="pname">${p.name}${p.id===state.myId ? ' (Aap)' : ''}</div>
+              ${p.id===room.hostId ? '<div class="host-tag">HOST</div>' : ''}
+            </div>
+          `).join('')}
+        </div>
+        <div class="lobby-footer">
+          ${state.isHost ? `
+            <button class="uno-btn uno-btn-primary" id="startBtn" ${players.length<2?'disabled':''}>${players.length<2 ? 'Kam se kam 2 players chahiye' : 'Game Shuru Karein'}</button>
+            <div class="lobby-hint">Aap host hain — jab sab ready ho jaayein tab shuru karein (max 12 players)</div>
+          ` : `
+            <div class="lobby-hint">Host ke game shuru karne ka wait kar rahe hain...</div>
+          `}
+        </div>
+      </div>
+    `;
+    if(state.isHost){
+      const btn = document.getElementById('startBtn');
+      if(btn) btn.addEventListener('click', startGame);
+    }
+  }
+
+  async function startGame(){
+    if(state.busy) return;
+    state.busy = true;
+    const room = await storeGet(roomKey(state.roomCode)) || state.room;
+    const players = room.players;
+    let deck = buildDeck();
+
+    // deal 7 to each
+    for(const p of players){
+      const hand = deck.splice(0,7);
+      await storeSet(handKey(state.roomCode, p.id), hand);
+      p.handCount = hand.length;
+      p.saidUno = false;
+    }
+
+    // find first non-wild non-action card for starting discard, keep action cards in deck order otherwise fine
+    let startIdx = deck.findIndex(c => c.color !== 'wild' && !['skip','reverse','draw2'].includes(c.value));
+    if(startIdx === -1) startIdx = 0;
+    const startCard = deck.splice(startIdx,1)[0];
+
+    room.status = 'playing';
+    room.currentPlayerIndex = 0;
+    room.direction = 1;
+    room.discardTop = startCard;
+    room.deckCount = deck.length;
+    room.lastAction = 'Game shuru ho gaya!';
+    room.winnerId = null;
+    room.turnToken = (room.turnToken||0) + 1;
+
+    await storeSet(deckKey(state.roomCode), deck);
+    await storeSet(discardKey(state.roomCode), [startCard]);
+    await storeSet(roomKey(state.roomCode), room);
+
+    state.room = room;
+    state.myHand = await storeGet(handKey(state.roomCode, state.myId)) || [];
+    state.busy = false;
+    state.screen = 'game';
+    render();
+  }
+
+  // ---------------- GAME ----------------
+  function isMyTurn(){
+    const room = state.room;
+    if(!room || room.status !== 'playing') return false;
+    const cur = room.players[room.currentPlayerIndex];
+    return cur && cur.id === state.myId;
+  }
+
+  function cardPlayable(card){
+    const top = state.room.discardTop;
+    if(!top) return false;
+    if(card.color === 'wild') return true;
+    return card.color === top.color || card.value === top.value;
+  }
+
+  function nextIndex(cur, dir, n, steps){
+    let idx = cur;
+    for(let i=0;i<steps;i++){ idx = ((idx + dir) % n + n) % n; }
+    return idx;
+  }
+
+  function renderGame(){
+    const room = state.room;
+    const players = room.players;
+    const top = room.discardTop;
+    const myTurn = isMyTurn();
+    const myPlayer = players.find(p=>p.id===state.myId);
+
+    root.innerHTML = `
+      <div class="screen">
+        <div class="game-top" id="playerStrip">
+          ${players.map((p,i) => `
+            <div class="player-chip ${i===room.currentPlayerIndex ? 'active-turn':''}">
+              <div class="avatar" style="background:${avatarColor(p.id, room)}">${initials(p.name)}</div>
+              <div>
+                <div class="pname">${p.name}${p.id===state.myId?' (Aap)':''}</div>
+                <div class="cardcount">${p.handCount} cards ${p.saidUno && p.handCount===1 ? '<span class="uno-flag">UNO!</span>' : ''}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="table-area">
+          <div class="direction-indicator">${room.direction===1 ? '⟳ Clockwise' : '⟲ Counter-clockwise'}</div>
+          <div class="pile-row">
+            <div class="deck-stack" id="drawPileBtn">
+              <div class="card-back"><div class="oval-back"><span>UNO</span></div></div>
+              <div class="count-badge">${room.deckCount}</div>
+            </div>
+            ${top ? renderCardHTML(top) : ''}
+          </div>
+          <div class="turn-banner ${myTurn ? 'my-turn' : ''}">
+            ${room.status==='playing' ? (myTurn ? 'Aapki baari hai!' : `${players[room.currentPlayerIndex]?.name || ''} khel rahe hain...`) : ''}
+          </div>
+          <div class="action-log">${room.lastAction||''}</div>
+        </div>
+
+        <div class="hand-area">
+          <div class="hand-controls">
+            <button class="uno-btn uno-btn-gold uno-btn-small" id="unoBtn" ${!(state.myHand.length===2 && myTurn===false)?'':''}>UNO Bolo!</button>
+          </div>
+          <div class="hand-scroll" id="handScroll">
+            ${state.myHand.length === 0 ? '<div class="hand-empty-msg">Aapke haath mein koi card nahi</div>' :
+              state.myHand.map((c,idx) => {
+                const playable = myTurn && cardPlayable(c);
+                return `<div class="hand-card-wrap ${playable?'playable':'dim'}" data-idx="${idx}">${renderCardHTML(c)}</div>`;
+              }).join('')
+            }
+          </div>
+        </div>
+      </div>
+
+      ${state.colorPickerFor ? `
+        <div class="modal-overlay" id="colorModal">
+          <div class="color-picker">
+            <h3>Color chunein</h3>
+            <div class="color-grid">
+              <div class="color-swatch" style="background:var(--red)" data-color="red"></div>
+              <div class="color-swatch" style="background:var(--yellow)" data-color="yellow"></div>
+              <div class="color-swatch" style="background:var(--green)" data-color="green"></div>
+              <div class="color-swatch" style="background:var(--blue)" data-color="blue"></div>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    `;
+
+    document.getElementById('unoBtn').addEventListener('click', sayUno);
+    document.getElementById('drawPileBtn').addEventListener('click', drawCard);
+    document.querySelectorAll('.hand-card-wrap.playable').forEach(el=>{
+      el.addEventListener('click', ()=> playCard(parseInt(el.dataset.idx)));
+    });
+    if(state.colorPickerFor){
+      document.querySelectorAll('.color-swatch').forEach(el=>{
+        el.addEventListener('click', ()=> confirmWildColor(el.dataset.color));
+      });
+    }
+  }
+
+  async function sayUno(){
+    if(state.myHand.length !== 1 && state.myHand.length !== 2) return;
+    const room = await storeGet(roomKey(state.roomCode));
+    if(!room) return;
+    const p = room.players.find(pl=>pl.id===state.myId);
+    if(p){ p.saidUno = true; room.turnToken=(room.turnToken||0)+1; await storeSet(roomKey(state.roomCode), room); state.room = room; render(); }
+  }
+
+  function playCard(idx){
+    if(state.busy) return;
+    const card = state.myHand[idx];
+    if(!cardPlayable(card)) return;
+    if(card.color === 'wild'){
+      state.colorPickerFor = {idx, card};
+      render();
+      return;
+    }
+    doPlayCard(idx, null);
+  }
+
+  async function confirmWildColor(color){
+    const idx = state.colorPickerFor.idx;
+    state.colorPickerFor = null;
+    await doPlayCard(idx, color);
+  }
+
+  async function doPlayCard(idx, chosenColor){
+    state.busy = true;
+    const room = await storeGet(roomKey(state.roomCode));
+    let deck = await storeGet(deckKey(state.roomCode)) || [];
+    let discard = await storeGet(discardKey(state.roomCode)) || [];
+    if(!room){ state.busy=false; return; }
+
+    const card = state.myHand[idx];
+    const newHand = state.myHand.slice(); newHand.splice(idx,1);
+
+    const playedCard = card.color==='wild' ? {...card, chosenColor} : card;
+    const effectiveColor = card.color==='wild' ? chosenColor : card.color;
+
+    discard.push(playedCard);
+    room.discardTop = {color: effectiveColor, value: card.value, _raw: card.color};
+
+    const n = room.players.length;
+    const dir = room.direction;
+    const curIdx = room.currentPlayerIndex;
+    const myPlayerIdx = room.players.findIndex(p=>p.id===state.myId);
+
+    room.players[myPlayerIdx].handCount = newHand.length;
+    if(newHand.length !== 1) room.players[myPlayerIdx].saidUno = false;
+
+    let newDir = dir;
+    let victimDrawCount = 0;
+    let victimIdx = null;
+    let newCurrent;
+
+    if(card.value === 'skip'){
+      victimIdx = nextIndex(curIdx, dir, n, 1);
+      newCurrent = nextIndex(curIdx, dir, n, 2);
+    } else if(card.value === 'reverse'){
+      newDir = dir * -1;
+      if(n === 2){ newCurrent = curIdx; }
+      else { newCurrent = nextIndex(curIdx, newDir, n, 1); }
+    } else if(card.value === 'draw2'){
+      victimIdx = nextIndex(curIdx, dir, n, 1);
+      victimDrawCount = 2;
+      newCurrent = nextIndex(curIdx, dir, n, 2);
+    } else if(card.value === 'wild4'){
+      victimIdx = nextIndex(curIdx, dir, n, 1);
+      victimDrawCount = 4;
+      newCurrent = nextIndex(curIdx, dir, n, 2);
+    } else {
+      newCurrent = nextIndex(curIdx, dir, n, 1);
+    }
+
+    // handle deck reshuffle if needed for victim draws
+    if(victimDrawCount > 0){
+      if(deck.length < victimDrawCount){
+        const top = discard[discard.length-1];
+        const rest = discard.slice(0,-1);
+        for(let i=rest.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [rest[i],rest[j]]=[rest[j],rest[i]]; }
+        deck = deck.concat(rest);
+        discard = [top];
+      }
+      const drawn = deck.splice(0, victimDrawCount);
+      const victimId = room.players[victimIdx].id;
+      const victimHand = (await storeGet(handKey(state.roomCode, victimId))) || [];
+      const updatedVictimHand = victimHand.concat(drawn);
+      await storeSet(handKey(state.roomCode, victimId), updatedVictimHand);
+      room.players[victimIdx].handCount = updatedVictimHand.length;
+      room.players[victimIdx].saidUno = false;
+    }
+
+    room.direction = newDir;
+    room.currentPlayerIndex = newCurrent;
+    room.deckCount = deck.length;
+
+    let actionText = `${room.players[myPlayerIdx].name} ne ${effectiveColor.toUpperCase()} ${cardLabel(card)} khela`;
+    room.lastAction = actionText;
+    room.turnToken = (room.turnToken||0) + 1;
+
+    let wonGame = false;
+    if(newHand.length === 0){
+      room.status = 'finished';
+      room.winnerId = state.myId;
+      room.lastAction = `${room.players[myPlayerIdx].name} jeet gaye! 🎉`;
+      wonGame = true;
+    }
+
+    await storeSet(deckKey(state.roomCode), deck);
+    await storeSet(discardKey(state.roomCode), discard);
+    await storeSet(handKey(state.roomCode, state.myId), newHand);
+    await storeSet(roomKey(state.roomCode), room);
+
+    state.room = room;
+    state.myHand = newHand;
+    state.busy = false;
+
+    if(wonGame){ state.screen = 'gameover'; }
+    render();
+  }
+
+  async function drawCard(){
+    if(state.busy || !isMyTurn()) return;
+    state.busy = true;
+    const room = await storeGet(roomKey(state.roomCode));
+    let deck = await storeGet(deckKey(state.roomCode)) || [];
+    let discard = await storeGet(discardKey(state.roomCode)) || [];
+    if(!room){ state.busy=false; return; }
+
+    if(deck.length === 0){
+      const top = discard[discard.length-1];
+      const rest = discard.slice(0,-1);
+      for(let i=rest.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [rest[i],rest[j]]=[rest[j],rest[i]]; }
+      deck = rest;
+      discard = [top];
+    }
+    if(deck.length === 0){ state.busy=false; return; }
+
+    const drawn = deck.splice(0,1)[0];
+    const newHand = state.myHand.concat([drawn]);
+    const myPlayerIdx = room.players.findIndex(p=>p.id===state.myId);
+    room.players[myPlayerIdx].handCount = newHand.length;
+    room.players[myPlayerIdx].saidUno = false;
+
+    const n = room.players.length;
+    room.currentPlayerIndex = nextIndex(room.currentPlayerIndex, room.direction, n, 1);
+    room.deckCount = deck.length;
+    room.lastAction = `${room.players[myPlayerIdx].name} ne card draw kiya`;
+    room.turnToken = (room.turnToken||0)+1;
+
+    await storeSet(deckKey(state.roomCode), deck);
+    await storeSet(discardKey(state.roomCode), discard);
+    await storeSet(handKey(state.roomCode, state.myId), newHand);
+    await storeSet(roomKey(state.roomCode), room);
+
+    state.room = room;
+    state.myHand = newHand;
+    state.busy = false;
+    render();
+  }
+
+  // ---------------- GAME OVER ----------------
+  function renderGameOver(){
+    const room = state.room;
+    const winner = room.players.find(p=>p.id===room.winnerId);
+    root.innerHTML = `
+      <div class="screen">
+        <div class="gameover-wrap">
+          <div class="trophy">🏆</div>
+          <div class="winner-name">${winner ? winner.name : 'Koi'} jeet gaye!</div>
+          <p class="small-muted">Room ${room.code}</p>
+          <button class="uno-btn uno-btn-primary" id="backHomeBtn" style="max-width:260px;">Naya Game</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('backHomeBtn').addEventListener('click', ()=>{
+      stopPolling();
+      state = {screen:'home', roomCode:'', myId:null, myName: state.myName, isHost:false, room:null, myHand:[], joinError:'', homeMode:'create', colorPickerFor:null, pollTimer:null, busy:false};
+      render();
+    });
+  }
+
+  // ---------------- POLLING ----------------
+  function startPolling(){
+    stopPolling();
+    state.pollTimer = setInterval(pollRoom, 2200);
+  }
+  function stopPolling(){
+    if(state.pollTimer) clearInterval(state.pollTimer);
+    state.pollTimer = null;
+  }
+  async function pollRoom(){
+    if(!state.roomCode || state.busy) return;
+    const room = await storeGet(roomKey(state.roomCode));
+    if(!room) return;
+    const changed = !state.room || room.turnToken !== state.room.turnToken;
+    if(!changed) return;
+
+    state.room = room;
+    if(room.status === 'playing' && state.screen === 'lobby'){
+      state.screen = 'game';
+    }
+    if(room.status === 'finished' && state.screen !== 'gameover'){
+      state.screen = 'gameover';
+    }
+    if(room.status === 'playing' || room.status === 'finished'){
+      const h = await storeGet(handKey(state.roomCode, state.myId));
+      if(h) state.myHand = h;
+    }
+    render();
+  }
+
+  render();
+})();
+</script>
