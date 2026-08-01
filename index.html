@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>UNO — Multiplayer Card Game</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- ===== STYLES ===== -->
+    <title>UNO — Multiplayer (Supabase)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ----- RESET & BASE ----- */
+        /* -------------------- CSS (same as before) -------------------- */
         * {
             margin: 0;
             padding: 0;
@@ -16,7 +14,7 @@
             user-select: none;
         }
         body {
-            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             background: #0b0e14;
             color: #fff;
             overflow: hidden;
@@ -34,19 +32,6 @@
         button:active {
             transform: scale(0.94);
         }
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3a3f4b;
-            border-radius: 8px;
-        }
-
-        /* ----- SCREENS ----- */
         .screen {
             position: fixed;
             inset: 0;
@@ -65,8 +50,7 @@
             pointer-events: none;
             transform: scale(0.96);
         }
-
-        /* ----- HOME SCREEN ----- */
+        /* Home */
         #homeScreen {
             background: radial-gradient(ellipse at 50% 30%, #1a1f2e, #0b0e14 70%);
         }
@@ -79,7 +63,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: gradShift 4s ease-in-out infinite;
-            text-shadow: 0 0 80px rgba(255, 60, 60, 0.2);
             letter-spacing: 4px;
             margin-bottom: 8px;
         }
@@ -97,7 +80,7 @@
             font-size: clamp(14px, 2.5vw, 22px);
             letter-spacing: 6px;
             text-transform: uppercase;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             font-weight: 300;
         }
         .home-buttons {
@@ -119,7 +102,6 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: all 0.25s ease;
         }
         .home-buttons button:hover {
             background: #2a3347;
@@ -135,7 +117,6 @@
         }
         .home-buttons .primary:hover {
             box-shadow: 0 8px 35px rgba(230, 57, 70, 0.5);
-            transform: translateY(-2px) scale(1.01);
         }
         .home-stats {
             margin-top: 30px;
@@ -166,8 +147,7 @@
                 opacity: 0.3;
             }
         }
-
-        /* ----- LOBBY SCREEN ----- */
+        /* Lobby */
         #lobbyScreen {
             background: #0f131c;
             padding: 20px;
@@ -328,7 +308,6 @@
             color: #e8ecf4;
             font-size: 14px;
             outline: none;
-            transition: border 0.2s;
         }
         .lobby-chat-input input:focus {
             border-color: #3a5a7a;
@@ -339,8 +318,7 @@
             background: #2a3347;
             color: #b0b8d0;
         }
-
-        /* ----- GAME SCREEN ----- */
+        /* Game */
         #gameScreen {
             background: #0a0e16;
             padding: 0;
@@ -361,7 +339,6 @@
             border: 2px solid #1a2a1a;
             overflow: hidden;
         }
-        /* felt texture overlay */
         .game-container::before {
             content: '';
             position: absolute;
@@ -371,8 +348,6 @@
             z-index: 0;
             border-radius: 28px;
         }
-
-        /* ----- PLAYER ZONES (on table) ----- */
         .game-table {
             flex: 1;
             position: relative;
@@ -430,8 +405,6 @@
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.08);
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
-
-        /* positions */
         .p-bottom {
             grid-row: 3/4;
             grid-column: 2/3;
@@ -452,8 +425,6 @@
             grid-row: 2/3;
             grid-column: 3/4;
         }
-
-        /* cards in hand (bottom) */
         .hand-cards {
             display: flex;
             gap: 2px;
@@ -519,8 +490,6 @@
             animation: gradShift 3s ease infinite;
             color: #fff;
         }
-
-        /* ----- DISCARD & DRAW PILE (center) ----- */
         .center-area {
             grid-row: 2/3;
             grid-column: 2/3;
@@ -621,7 +590,6 @@
             background: repeating-linear-gradient(45deg, #1a2a3a, #1a2a3a 8px, #2a3a4a 8px, #2a3a4a 16px);
             border: 2px solid #2a4a5a;
         }
-
         .pile .card-flip {
             animation: cardFlip 0.4s ease forwards;
         }
@@ -635,8 +603,6 @@
                 opacity: 1;
             }
         }
-
-        /* ----- COLOR PICKER (wild) ----- */
         .color-picker-overlay {
             position: absolute;
             inset: 0;
@@ -695,8 +661,6 @@
         .color-picker button.cp-blue {
             background: #3b7bc9;
         }
-
-        /* ----- UNO POPUP ----- */
         .uno-popup {
             position: absolute;
             inset: 0;
@@ -734,8 +698,6 @@
                 opacity: 1;
             }
         }
-
-        /* ----- WINNER OVERLAY ----- */
         .winner-overlay {
             position: absolute;
             inset: 0;
@@ -801,7 +763,6 @@
             transform: scale(1.04);
             box-shadow: 0 8px 50px rgba(59, 255, 107, 0.4);
         }
-        /* confetti canvas */
         #confettiCanvas {
             position: absolute;
             inset: 0;
@@ -811,8 +772,6 @@
             width: 100%;
             height: 100%;
         }
-
-        /* ----- GAME OVERLAY (turn info) ----- */
         .game-info {
             position: absolute;
             top: 12px;
@@ -838,8 +797,6 @@
         .game-info .direction {
             font-size: 18px;
         }
-
-        /* ----- RESPONSIVE ----- */
         @media (max-width: 640px) {
             .game-container {
                 max-height: 100vh;
@@ -924,8 +881,6 @@
                 grid-template-columns: 44px 1fr 44px;
             }
         }
-
-        /* ----- FLYING CARD ANIMATION ----- */
         .flying-card {
             position: fixed;
             z-index: 50;
@@ -942,8 +897,6 @@
                 height: 62px;
             }
         }
-
-        /* ----- TOAST ----- */
         .toast {
             position: fixed;
             bottom: 100px;
@@ -975,25 +928,25 @@
 </head>
 <body>
 
-    <!-- ===== TOAST ===== -->
+    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- ===== HOME SCREEN ===== -->
+    <!-- Home -->
     <div id="homeScreen" class="screen">
         <div class="home-logo">UNO</div>
-        <div class="home-sub">Multiplayer Card Game</div>
+        <div class="home-sub">Multiplayer · Supabase</div>
         <div class="home-buttons">
-            <button class="primary" onclick="showLobby()">🃏 Create Room</button>
+            <button class="primary" onclick="createRoom()">🃏 Create Room</button>
             <button onclick="joinRoom()">🔗 Join Room</button>
-            <button onclick="startSoloGame()">🤖 Play vs AI</button>
+            <button onclick="startSoloGame()">🤖 Play vs AI (offline)</button>
         </div>
         <div class="home-stats">
-            <span><span class="dot"></span> 128 online</span>
+            <span><span class="dot"></span> <span id="onlineCount">0</span> online</span>
             <span>🏆 4.8 ★</span>
         </div>
     </div>
 
-    <!-- ===== LOBBY SCREEN ===== -->
+    <!-- Lobby -->
     <div id="lobbyScreen" class="screen hidden">
         <div class="lobby-header">
             <div class="lobby-code">
@@ -1001,13 +954,11 @@
                 <button onclick="copyRoomCode()">📋</button>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
-                <span id="lobbyPlayerCount" style="color:#7a8299;">0/8</span>
+                <span id="lobbyPlayerCount">0/8</span>
                 <button onclick="leaveLobby()" style="background:#2a1a1a;padding:8px 16px;border-radius:10px;color:#e63946;font-size:13px;">✕</button>
             </div>
         </div>
-        <div class="lobby-players" id="lobbyPlayers">
-            <!-- dynamically filled -->
-        </div>
+        <div class="lobby-players" id="lobbyPlayers"></div>
         <div class="lobby-actions">
             <button class="ready-btn" id="readyBtn" onclick="toggleReady()">✅ Ready</button>
             <button class="start-btn" id="startBtn" onclick="startGame()" disabled>▶ Start Game</button>
@@ -1021,37 +972,30 @@
         </div>
     </div>
 
-    <!-- ===== GAME SCREEN ===== -->
+    <!-- Game -->
     <div id="gameScreen" class="screen hidden">
         <div class="game-container" id="gameContainer">
-            <!-- info bar -->
             <div class="game-info" id="gameInfo">
                 <span class="direction" id="dirIcon">➡️</span>
                 <span><span class="turn-indicator" id="turnName">Waiting...</span>'s turn</span>
                 <span id="gameDeckCount">🃏 0</span>
             </div>
-
-            <!-- table grid -->
             <div class="game-table" id="gameTable">
-                <!-- top -->
                 <div class="player-zone p-top" id="pTop">
                     <div class="p-avatar">🤖</div>
-                    <div class="p-name" id="pTopName">AI 1</div>
+                    <div class="p-name" id="pTopName">Player</div>
                     <div class="p-card-count" id="pTopCount">0 cards</div>
                 </div>
-                <!-- left -->
                 <div class="player-zone p-left" id="pLeft">
                     <div class="p-avatar">🤖</div>
-                    <div class="p-name" id="pLeftName">AI 2</div>
+                    <div class="p-name" id="pLeftName">Player</div>
                     <div class="p-card-count" id="pLeftCount">0 cards</div>
                 </div>
-                <!-- right -->
                 <div class="player-zone p-right" id="pRight">
                     <div class="p-avatar">🤖</div>
-                    <div class="p-name" id="pRightName">AI 3</div>
+                    <div class="p-name" id="pRightName">Player</div>
                     <div class="p-card-count" id="pRightCount">0 cards</div>
                 </div>
-                <!-- center -->
                 <div class="center-area" id="centerArea">
                     <div class="pile-row">
                         <div class="pile draw-pile" id="drawPile" onclick="drawCard()">
@@ -1062,7 +1006,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- bottom (you) -->
                 <div class="player-zone p-bottom" id="pBottom">
                     <div class="p-avatar">😎</div>
                     <div class="p-name" id="pBottomName">You</div>
@@ -1070,8 +1013,6 @@
                     <div class="p-card-count" id="pBottomCount">0 cards</div>
                 </div>
             </div>
-
-            <!-- color picker overlay -->
             <div class="color-picker-overlay" id="colorPickerOverlay">
                 <div class="color-picker">
                     <button class="cp-red" onclick="selectWildColor('red')">🔴</button>
@@ -1080,13 +1021,9 @@
                     <button class="cp-blue" onclick="selectWildColor('blue')">🔵</button>
                 </div>
             </div>
-
-            <!-- UNO popup -->
             <div class="uno-popup" id="unoPopup">
                 <div class="uno-text">🔥 UNO 🔥</div>
             </div>
-
-            <!-- winner overlay -->
             <div class="winner-overlay" id="winnerOverlay">
                 <div class="trophy">🏆</div>
                 <div class="w-name" id="winnerName">Winner</div>
@@ -1094,32 +1031,31 @@
                 <div class="w-stars">⭐⭐⭐⭐⭐</div>
                 <button onclick="rematch()">🔄 Rematch</button>
             </div>
-
-            <!-- confetti canvas -->
             <canvas id="confettiCanvas"></canvas>
         </div>
     </div>
 
-    <!-- ===== JAVASCRIPT ===== -->
     <script>
         // ============================================================
-        //  UNO — Full Production Game (Single File)
-        //  Features: Full rules, AI opponents, animations, sounds, UI
+        //  🔑 SUPABASE CREDENTIALS — YAHAN DAALEIN
         // ============================================================
-       // ===== SUPABASE CONFIG =====
-const SUPABASE_URL = ' https://dsathvara2006-code.github.io/uno-game-/';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c3drbXNleHpvcXpicmdvanNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1OTc5MjgsImV4cCI6MjEwMTE3MzkyOH0.kgmnfce6_7wRSOQwVoFmhsQm5teGDzgPS8xEbn_cESQ';
-const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-game-/, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c3drbXNleHpvcXpicmdvanNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1OTc5MjgsImV4cCI6MjEwMTE3MzkyOH0.kgmnfce6_7wRSOQwVoFmhsQm5teGDzgPS8xEbn_cESQ); // ----- SOUND ENGINE (Web Audio) -----
+        const SUPABASE_URL = 'https://kvswkmsexzoqzbrgojsc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c3drbXNleHpvcXpicmdvanNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1OTc5MjgsImV4cCI6MjEwMTE3MzkyOH0.kgmnfce6_7wRSOQwVoFmhsQm5teGDzgPS8xEbn_cESQ';
+
+        // ============================================================
+        //  INIT SUPABASE
+        // ============================================================
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================================
+        //  SOUND ENGINE
+        // ============================================================
         const Sound = {
             ctx: null,
-
             init() {
-                try {
-                    this.ctx = new(window.AudioContext || window.webkitAudioContext)();
-                } catch (_) { /* no audio */ }
+                try { this.ctx = new(window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
             },
-
-            _play(freq, duration, type = 'sine', vol = 0.2) {
+            _play(freq, dur, type = 'sine', vol = 0.2) {
                 if (!this.ctx) return;
                 try {
                     const osc = this.ctx.createOscillator();
@@ -1127,39 +1063,39 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
                     osc.type = type;
                     osc.frequency.value = freq;
                     gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
                     osc.start();
-                    osc.stop(this.ctx.currentTime + duration);
+                    osc.stop(this.ctx.currentTime + dur);
                 } catch (_) {}
             },
-
-            cardPlace() { this._play(800, 0.08, 'sine', 0.15);
-                this._play(1000, 0.06, 'sine', 0.10); },
+            cardPlace() { this._play(800, 0.08);
+                this._play(1000, 0.06); },
             shuffle() { this._play(300, 0.12, 'sawtooth', 0.06);
                 setTimeout(() => this._play(400, 0.10, 'sawtooth', 0.05), 80); },
             uno() { this._play(600, 0.15, 'square', 0.10);
                 setTimeout(() => this._play(800, 0.15, 'square', 0.10), 120);
                 setTimeout(() => this._play(1000, 0.20, 'square', 0.12), 240); },
-            win() {
-                [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => this._play(f, 0.20, 'sine', 0.12), i * 140)); },
-            draw() { this._play(500, 0.10, 'sine', 0.10);
-                setTimeout(() => this._play(400, 0.08, 'sine', 0.08), 60); },
+            win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => this._play(f, 0.20, 'sine', 0.12), i * 140)); },
+            draw() { this._play(500, 0.10);
+                setTimeout(() => this._play(400, 0.08), 60); },
             reverse() { this._play(350, 0.20, 'triangle', 0.12);
                 setTimeout(() => this._play(550, 0.20, 'triangle', 0.10), 150); },
-            skip() { this._play(900, 0.06, 'sine', 0.12);
-                setTimeout(() => this._play(1200, 0.06, 'sine', 0.10), 80); },
-            wild() { this._play(700, 0.10, 'sine', 0.10);
-                setTimeout(() => this._play(900, 0.10, 'sine', 0.08), 100);
-                setTimeout(() => this._play(1100, 0.12, 'sine', 0.10), 200); },
-            click() { this._play(600, 0.04, 'sine', 0.06); },
-            countdown() { this._play(400, 0.08, 'sine', 0.08); },
+            skip() { this._play(900, 0.06);
+                setTimeout(() => this._play(1200, 0.06), 80); },
+            wild() { this._play(700, 0.10);
+                setTimeout(() => this._play(900, 0.10), 100);
+                setTimeout(() => this._play(1100, 0.12), 200); },
+            click() { this._play(600, 0.04); },
+            countdown() { this._play(400, 0.08); },
             penalty() { this._play(200, 0.30, 'sawtooth', 0.10); },
         };
         Sound.init();
 
-        // ----- UTILITY -----
+        // ============================================================
+        //  UTILITY
+        // ============================================================
         const uid = () => Math.random().toString(36).substring(2, 6).toUpperCase();
 
         function shuffleArray(arr) {
@@ -1170,17 +1106,12 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
             return arr;
         }
 
-        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
-        // ----- TOAST -----
-        let toastTimeout;
-
         function showToast(msg, emoji = '💬', duration = 2200) {
             const el = document.getElementById('toast');
             el.innerHTML = `<span class="toast-emoji">${emoji}</span> ${msg}`;
             el.classList.add('show');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => el.classList.remove('show'), duration);
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => el.classList.remove('show'), duration);
         }
 
         // ============================================================
@@ -1219,9 +1150,7 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
 
         function cardDisplay(card) {
             if (!card) return '🃏';
-            if (card.color === 'wild') {
-                return card.value === 'wild' ? '🎨' : '➕4';
-            }
+            if (card.color === 'wild') return card.value === 'wild' ? '🎨' : '➕4';
             const symbols = { skip: '⊘', reverse: '⟳', draw2: '+2' };
             return symbols[card.value] || card.value;
         }
@@ -1232,464 +1161,751 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
             return card.color;
         }
 
-        function cardEmoji(card) {
-            if (!card) return '🃏';
-            if (card.color === 'wild') return card.value === 'wild' ? '🌈' : '💫';
-            const emojis = { red: '🔴', yellow: '🟡', green: '🟢', blue: '🔵' };
-            return emojis[card.color] || '🃏';
-        }
-
         // ============================================================
-        //  GAME STATE
+        //  GAME STATE (local cache)
         // ============================================================
-        const state = {
-            players: [], // { id, name, cards, isAI, isReady, isHost }
-            currentTurn: 0,
-            direction: 1, // 1 = clockwise, -1 = counter
-            deck: [],
-            discardPile: [],
-            currentColor: null,
-            currentValue: null,
+        let localState = {
+            roomId: null,
+            myPlayerId: null,
+            players: [],
+            gameState: null,
             isPlaying: false,
-            gameOver: false,
-            pendingWild: null, // { playerIdx, card }
-            unoCalled: {}, // playerIdx -> true
-            pendingDraw: 0, // for draw2 / wild4 stacking
+            deck: [],
+            pendingWild: null,
             turnTimeout: null,
             isProcessing: false,
-            lastAction: null,
         };
 
-        // ----- PLAYER FACTORY -----
-        let playerIdCounter = 0;
+        // ============================================================
+        //  SUPABASE HELPERS
+        // ============================================================
+        let roomSubscription = null;
 
-        function createPlayer(name, isAI = false, isHost = false) {
-            return {
-                id: ++playerIdCounter,
-                name,
-                cards: [],
-                isAI,
-                isReady: false,
-                isHost,
-                isUno: false,
-                hasCalledUno: false,
-            };
+        function subscribeToRoom(roomId) {
+            if (roomSubscription) {
+                supabase.removeChannel(roomSubscription);
+            }
+            roomSubscription = supabase
+                .channel('room:' + roomId)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'rooms',
+                    filter: `id=eq.${roomId}`
+                }, (payload) => {
+                    const newData = payload.new;
+                    if (newData) {
+                        localState.players = newData.players || [];
+                        localState.gameState = newData.game_state || null;
+                        localState.isPlaying = newData.is_playing || false;
+                        renderLobby();
+                        if (localState.isPlaying) {
+                            renderGame();
+                            updateTurn();
+                        }
+                    }
+                })
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        console.log('Subscribed to room', roomId);
+                    }
+                });
         }
 
-        // ----- AI NAMES -----
-        const AI_NAMES = ['R2-D2', 'C-3PO', 'BB-8', 'K-2SO', 'L3-37', 'Chopper', 'D-O', 'BD-1'];
+        async function updateRoom(data) {
+            if (!localState.roomId) return;
+            await supabase
+                .from('rooms')
+                .update(data)
+                .eq('id', localState.roomId);
+        }
 
         // ============================================================
-        //  GAME LOGIC
+        //  LOBBY LOGIC
         // ============================================================
+        let myName = '';
+        let myIsHost = false;
 
-        function initGame(players) {
-            state.players = players;
-            state.currentTurn = 0;
-            state.direction = 1;
-            state.deck = createDeck();
-            state.discardPile = [];
-            state.currentColor = null;
-            state.currentValue = null;
-            state.isPlaying = true;
-            state.gameOver = false;
-            state.pendingWild = null;
-            state.unoCalled = {};
-            state.pendingDraw = 0;
-            state.isProcessing = false;
+        function generateRoomCode() {
+            return 'UNO-' + uid() + uid().substring(0, 2);
+        }
 
-            // Deal cards
-            players.forEach(p => p.cards = []);
-            for (let i = 0; i < 7; i++) {
-                players.forEach(p => p.cards.push(drawFromDeck()));
+        async function createRoom() {
+            const roomId = generateRoomCode();
+            const playerId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+            const playerName = prompt('Enter your name:', 'Player') || 'Player';
+            myName = playerName;
+            myIsHost = true;
+            localState.roomId = roomId;
+            localState.myPlayerId = playerId;
+
+            const players = [{
+                id: playerId,
+                name: playerName,
+                cards: [],
+                isReady: false,
+                isAI: false,
+                isHost: true,
+            }];
+
+            const gameState = {
+                currentTurn: 0,
+                direction: 1,
+                discardPile: [],
+                deckCount: 108,
+                currentColor: null,
+                currentValue: null,
+                gameOver: false,
+                winner: null,
+            };
+
+            const { error } = await supabase
+                .from('rooms')
+                .insert([{
+                    id: roomId,
+                    host_id: playerId,
+                    players: players,
+                    game_state: gameState,
+                    is_playing: false,
+                }]);
+
+            if (error) {
+                showToast('Error creating room: ' + error.message, '❌', 3000);
+                return;
             }
 
-            // First card
-            let first = drawFromDeck();
+            localState.players = players;
+            localState.gameState = gameState;
+            localState.isPlaying = false;
+
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            document.getElementById('roomCode').textContent = roomId;
+            renderLobby();
+            subscribeToRoom(roomId);
+            showToast('Room created! Share the code.', '🏠', 1500);
+            Sound.click();
+
+            // Add AI players (3 AI)
+            const aiNames = ['R2-D2', 'C-3PO', 'BB-8'];
+            for (let i = 0; i < 3; i++) {
+                const aiId = 'ai_' + Date.now() + '_' + i;
+                const aiPlayer = {
+                    id: aiId,
+                    name: aiNames[i] || 'AI ' + (i + 1),
+                    cards: [],
+                    isReady: true,
+                    isAI: true,
+                    isHost: false,
+                };
+                localState.players.push(aiPlayer);
+            }
+            await updateRoom({ players: localState.players });
+            renderLobby();
+        }
+
+        async function joinRoom() {
+            const code = prompt('Enter room code:');
+            if (!code) return;
+            const roomId = code.trim().toUpperCase();
+            const playerName = prompt('Enter your name:', 'Player') || 'Player';
+            myName = playerName;
+            myIsHost = false;
+            localState.roomId = roomId;
+            localState.myPlayerId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+
+            const { data, error } = await supabase
+                .from('rooms')
+                .select('*')
+                .eq('id', roomId)
+                .single();
+
+            if (error || !data) {
+                showToast('Room not found!', '❌', 3000);
+                return;
+            }
+
+            const players = data.players || [];
+            const existing = players.find(p => p.id === localState.myPlayerId);
+            if (!existing) {
+                players.push({
+                    id: localState.myPlayerId,
+                    name: playerName,
+                    cards: [],
+                    isReady: false,
+                    isAI: false,
+                    isHost: false,
+                });
+            }
+            localState.players = players;
+            localState.gameState = data.game_state;
+            localState.isPlaying = data.is_playing || false;
+
+            await supabase
+                .from('rooms')
+                .update({ players: players })
+                .eq('id', roomId);
+
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            document.getElementById('roomCode').textContent = roomId;
+            renderLobby();
+            subscribeToRoom(roomId);
+            showToast('Joined room ' + roomId, '🔗', 1500);
+            Sound.click();
+        }
+
+        function renderLobby() {
+            const container = document.getElementById('lobbyPlayers');
+            const players = localState.players || [];
+            container.innerHTML = players.map(p => `
+                <div class="lobby-player ${p.isReady ? 'ready' : ''}">
+                  ${p.isHost ? '<div class="crown">👑</div>' : ''}
+                  <div class="avatar">${p.isAI ? '🤖' : '😎'}</div>
+                  <div class="name">${p.name} ${p.isAI ? '🤖' : ''}</div>
+                  <div class="status">${p.isReady ? '✅ Ready' : '⏳ Waiting'}</div>
+                </div>
+              `).join('');
+
+            document.getElementById('lobbyPlayerCount').textContent = `${players.length}/8`;
+
+            const me = players.find(p => p.id === localState.myPlayerId);
+            const btn = document.getElementById('readyBtn');
+            if (me) {
+                btn.textContent = me.isReady ? '✅ Ready' : '⏳ Not Ready';
+                btn.classList.toggle('is-ready', me.isReady);
+            }
+
+            const startBtn = document.getElementById('startBtn');
+            const allReady = players.every(p => p.isReady || p.isAI);
+            const isHost = me && me.isHost;
+            startBtn.disabled = !(isHost && allReady && players.length >= 2 && !localState.isPlaying);
+            if (isHost && allReady && players.length >= 2 && !localState.isPlaying) {
+                startBtn.style.opacity = '1';
+            } else {
+                startBtn.style.opacity = '0.5';
+            }
+        }
+
+        async function toggleReady() {
+            const me = localState.players.find(p => p.id === localState.myPlayerId);
+            if (!me) return;
+            me.isReady = !me.isReady;
+            await updateRoom({ players: localState.players });
+            renderLobby();
+            Sound.click();
+            if (me.isReady) showToast('You are ready!', '✅', 800);
+        }
+
+        async function startGame() {
+            const me = localState.players.find(p => p.id === localState.myPlayerId);
+            if (!me || !me.isHost) { showToast('Only host can start!', '👑', 800); return; }
+            const allReady = localState.players.every(p => p.isReady || p.isAI);
+            if (!allReady || localState.players.length < 2) {
+                showToast('Everyone must be ready!', '⚠️', 800);
+                return;
+            }
+
+            // Initialize game
+            const deck = createDeck();
+            const gameState = {
+                currentTurn: 0,
+                direction: 1,
+                discardPile: [],
+                deckCount: deck.length,
+                currentColor: null,
+                currentValue: null,
+                gameOver: false,
+                winner: null,
+            };
+
+            localState.players.forEach(p => p.cards = []);
+            for (let i = 0; i < 7; i++) {
+                localState.players.forEach(p => {
+                    if (deck.length > 0) {
+                        p.cards.push(deck.pop());
+                    }
+                });
+            }
+
+            let first = deck.pop();
             while (first && (first.value === 'wild' || first.value === 'wild4' || first.value === 'draw2' || first.value ===
                     'skip' || first.value === 'reverse')) {
-                state.deck.unshift(first);
-                first = drawFromDeck();
+                deck.unshift(first);
+                first = deck.pop();
             }
             if (first) {
-                state.discardPile.push(first);
-                state.currentColor = first.color;
-                state.currentValue = first.value;
-                if (first.color === 'wild') state.currentColor = 'red';
+                gameState.discardPile.push(first);
+                gameState.currentColor = first.color === 'wild' ? 'red' : first.color;
+                gameState.currentValue = first.value;
             } else {
-                // fallback
                 const fallback = { color: 'red', value: '0', id: 'fallback' };
-                state.discardPile.push(fallback);
-                state.currentColor = 'red';
-                state.currentValue = '0';
+                gameState.discardPile.push(fallback);
+                gameState.currentColor = 'red';
+                gameState.currentValue = '0';
             }
+            gameState.deckCount = deck.length;
+            localState.deck = deck;
+            localState.gameState = gameState;
+            localState.isPlaying = true;
 
-            // If first card is reverse, direction flips
-            if (first && first.value === 'reverse') {
-                state.direction = -1;
-            }
+            await updateRoom({
+                players: localState.players,
+                game_state: gameState,
+                is_playing: true,
+            });
 
-            // Reset UNO state
-            players.forEach(p => { p.isUno = false;
-                p.hasCalledUno = false; });
-
+            document.getElementById('lobbyScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
             renderGame();
             updateTurn();
             showToast('Game started! 🎮', '🎯', 1500);
 
-            // If AI starts, trigger AI turn
-            if (players[state.currentTurn].isAI) {
-                scheduleAITurn();
+            if (localState.players[gameState.currentTurn].isAI) {
+                setTimeout(() => doAITurn(), 800);
             }
         }
 
-        function drawFromDeck() {
-            if (state.deck.length === 0) {
-                // reshuffle discard pile (keep top)
-                if (state.discardPile.length <= 1) {
-                    // create new deck
-                    state.deck = createDeck();
+        function leaveLobby() {
+            if (roomSubscription) {
+                supabase.removeChannel(roomSubscription);
+                roomSubscription = null;
+            }
+            document.getElementById('lobbyScreen').classList.add('hidden');
+            document.getElementById('homeScreen').classList.remove('hidden');
+            showToast('Left lobby.', '👋', 1000);
+            localState = { roomId: null, myPlayerId: null, players: [], gameState: null, isPlaying: false, deck: [],
+                pendingWild: null, turnTimeout: null, isProcessing: false };
+        }
+
+        function copyRoomCode() {
+            const code = document.getElementById('roomCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Room code copied!', '📋', 1000);
+            }).catch(() => {
+                prompt('Copy this code:', code);
+            });
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            input.value = '';
+            const chat = document.getElementById('lobbyChat');
+            const div = document.createElement('div');
+            div.className = 'msg';
+            div.innerHTML = `<strong>${myName}:</strong> ${msg}`;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // ============================================================
+        //  GAME RENDERING & LOGIC
+        // ============================================================
+
+        function renderGame() {
+            const players = localState.players || [];
+            const gs = localState.gameState;
+            if (!gs) return;
+
+            const positions = ['pBottom', 'pTop', 'pLeft', 'pRight'];
+            players.forEach((p, idx) => {
+                const el = document.getElementById(positions[idx]);
+                if (!el) return;
+                const nameEl = el.querySelector('.p-name');
+                const countEl = el.querySelector('.p-card-count');
+                const avatarEl = el.querySelector('.p-avatar');
+                if (nameEl) {
+                    const isUno = p.cards && p.cards.length === 1;
+                    nameEl.innerHTML = p.name + (isUno ? ' <span class="uno-badge">UNO!</span>' : '');
+                }
+                if (countEl) countEl.textContent = `${p.cards ? p.cards.length : 0} cards`;
+                if (avatarEl) avatarEl.textContent = p.isAI ? '🤖' : '😎';
+                el.classList.toggle('active-turn', idx === gs.currentTurn && localState.isPlaying && !gs.gameOver);
+            });
+
+            // Hand (you)
+            const me = players.find(p => p.id === localState.myPlayerId);
+            const handEl = document.getElementById('handCards');
+            if (handEl && me && me.cards) {
+                const topCard = gs.discardPile[gs.discardPile.length - 1] || null;
+                const colorToMatch = gs.currentColor || (topCard ? topCard.color : null);
+                handEl.innerHTML = me.cards.map((card, ci) => {
+                    const playable = isPlayable(card, topCard, colorToMatch) &&
+                        !gs.gameOver && localState.isPlaying &&
+                        gs.currentTurn === players.indexOf(me);
+                    const colorCls = cardColorClass(card);
+                    const display = cardDisplay(card);
+                    return `<div class="card-mini ${playable ? 'playable' : ''}" 
+                              onclick="handleCardClick(${ci})" 
+                              title="${card.color} ${card.value}">
+                        <div class="card-color ${colorCls}">${display}</div>
+                      </div>`;
+                }).join('');
+            }
+
+            // Discard
+            const discardEl = document.getElementById('discardCard');
+            if (discardEl && gs.discardPile.length > 0) {
+                const top = gs.discardPile[gs.discardPile.length - 1];
+                const colorCls = cardColorClass(top);
+                const display = cardDisplay(top);
+                discardEl.className = `pile-card ${colorCls}`;
+                if (top.color === 'wild') {
+                    discardEl.innerHTML = `<span class="wild-text">${top.value === 'wild' ? '🌈' : '➕4'}</span>`;
                 } else {
-                    const top = state.discardPile.pop();
-                    state.deck = shuffleArray(state.discardPile);
-                    state.discardPile = [top];
+                    discardEl.innerHTML = display;
                 }
-                Sound.shuffle();
-            }
-            return state.deck.pop();
-        }
-
-        function getTopCard() {
-            return state.discardPile[state.discardPile.length - 1] || null;
-        }
-
-        function getCurrentPlayer() {
-            return state.players[state.currentTurn];
-        }
-
-        function getNextPlayer() {
-            let idx = state.currentTurn + state.direction;
-            if (idx < 0) idx = state.players.length - 1;
-            if (idx >= state.players.length) idx = 0;
-            return idx;
-        }
-
-        function advanceTurn() {
-            if (state.pendingDraw > 0) {
-                // Draw penalty applied to current player
-                const p = getCurrentPlayer();
-                for (let i = 0; i < state.pendingDraw; i++) {
-                    const card = drawFromDeck();
-                    if (card) p.cards.push(card);
-                }
-                state.pendingDraw = 0;
-                showToast(`${p.name} drew ${state.pendingDraw || 2} cards!`, '📥', 1200);
-                Sound.draw();
-                // Skip their turn
-                state.currentTurn = getNextPlayer();
-                renderGame();
-                updateTurn();
-                if (state.players[state.currentTurn].isAI) scheduleAITurn();
-                return;
+                discardEl.classList.remove('card-flip');
+                void discardEl.offsetWidth;
+                discardEl.classList.add('card-flip');
             }
 
-            state.currentTurn = getNextPlayer();
+            // Deck count
+            document.getElementById('gameDeckCount').textContent = `🃏 ${gs.deckCount || 0}`;
+            document.getElementById('dirIcon').textContent = gs.direction === 1 ? '➡️' : '⬅️';
+            const current = players[gs.currentTurn];
+            document.getElementById('turnName').textContent = current ? current.name : '...';
+        }
+
+        function updateTurn() {
+            const players = localState.players || [];
+            const gs = localState.gameState;
+            if (!gs) return;
+            const current = players[gs.currentTurn];
+            if (current) {
+                document.getElementById('turnName').textContent = current.name;
+                const positions = ['pBottom', 'pTop', 'pLeft', 'pRight'];
+                document.querySelectorAll('.player-zone').forEach(el => el.classList.remove('active-turn'));
+                const idx = players.indexOf(current);
+                if (idx >= 0) {
+                    const el = document.getElementById(positions[idx]);
+                    if (el) el.classList.add('active-turn');
+                }
+                // Enable/disable hand
+                const isHumanTurn = !current.isAI && current.id === localState.myPlayerId && !gs.gameOver && localState
+                    .isPlaying;
+                document.querySelectorAll('.card-mini').forEach(el => el.style.pointerEvents = isHumanTurn ? 'auto' : 'none');
+            }
             renderGame();
-            updateTurn();
-
-            const p = getCurrentPlayer();
-            if (p.isAI) {
-                scheduleAITurn();
-            }
         }
 
-        // ----- PLAY CARD -----
-        function playCard(playerIdx, cardIndex, chosenColor = null) {
-            if (state.isProcessing || state.gameOver) return;
-            const player = state.players[playerIdx];
-            if (playerIdx !== state.currentTurn) {
+        // ----- CARD ACTIONS -----
+        function handleCardClick(index) {
+            if (localState.isProcessing || localState.gameState?.gameOver) return;
+            const me = localState.players.find(p => p.id === localState.myPlayerId);
+            if (!me) return;
+            const gs = localState.gameState;
+            if (gs.currentTurn !== localState.players.indexOf(me)) {
                 showToast('Not your turn!', '⏳', 800);
                 return;
             }
-            if (playerIdx !== 0 && !player.isAI) return; // only human or AI can play
+            const card = me.cards[index];
+            if (!card) return;
+            const topCard = gs.discardPile[gs.discardPile.length - 1] || null;
+            const colorToMatch = gs.currentColor || (topCard ? topCard.color : null);
+            if (!isPlayable(card, topCard, colorToMatch)) {
+                showToast('Cannot play this card!', '🚫', 800);
+                return;
+            }
+
+            if (card.color === 'wild') {
+                localState.pendingWild = { playerIdx: localState.players.indexOf(me), cardIndex: index, card };
+                document.getElementById('colorPickerOverlay').classList.add('active');
+                return;
+            }
+
+            playCard(localState.players.indexOf(me), index);
+        }
+
+        function playCard(playerIdx, cardIndex, chosenColor = null) {
+            if (localState.isProcessing || localState.gameState?.gameOver) return;
+            const players = localState.players;
+            const player = players[playerIdx];
+            const gs = localState.gameState;
+            if (!player || !gs) return;
 
             const card = player.cards[cardIndex];
             if (!card) return;
 
-            const top = getTopCard();
-            const colorToMatch = state.currentColor || (top ? top.color : null);
-
-            // Check playable
-            if (!isPlayable(card, top, colorToMatch)) {
-                showToast('Cannot play that card!', '🚫', 800);
+            // Validate play
+            const topCard = gs.discardPile[gs.discardPile.length - 1] || null;
+            const colorToMatch = gs.currentColor || (topCard ? topCard.color : null);
+            if (!isPlayable(card, topCard, colorToMatch)) {
+                showToast('Cannot play this card!', '🚫', 800);
                 return;
             }
 
-            // Handle wild
+            // Wild
             if (card.color === 'wild') {
                 if (!chosenColor) {
-                    // show color picker
-                    state.pendingWild = { playerIdx, cardIndex, card };
+                    localState.pendingWild = { playerIdx, cardIndex, card };
                     document.getElementById('colorPickerOverlay').classList.add('active');
                     return;
                 }
-                // apply chosen color
-                state.currentColor = chosenColor;
+                gs.currentColor = chosenColor;
                 Sound.wild();
             } else {
-                state.currentColor = card.color;
+                gs.currentColor = card.color;
                 Sound.cardPlace();
             }
 
-            // Remove card from hand
+            // Remove card
             player.cards.splice(cardIndex, 1);
+            gs.discardPile.push(card);
+            gs.currentValue = card.value;
 
-            // Add to discard pile
-            state.discardPile.push(card);
-            state.currentValue = card.value;
-
-            // Handle special cards
-            const wasWild4 = card.value === 'wild4';
-            const wasDraw2 = card.value === 'draw2';
-            const wasSkip = card.value === 'skip';
-            const wasReverse = card.value === 'reverse';
-
-            // Check UNO
+            // UNO check
             if (player.cards.length === 1) {
-                player.isUno = true;
-                player.hasCalledUno = false;
                 showToast(`${player.name} said UNO! 🔥`, '🔥', 1200);
                 Sound.uno();
                 document.getElementById('unoPopup').classList.add('active');
                 setTimeout(() => document.getElementById('unoPopup').classList.remove('active'), 1200);
             }
 
-            // Check win
+            // Win
             if (player.cards.length === 0) {
-                endGame(player);
+                gs.gameOver = true;
+                gs.winner = player.name;
+                localState.isPlaying = false;
+                Sound.win();
+                startConfetti();
+                document.getElementById('winnerName').textContent = player.name;
+                document.getElementById('winnerOverlay').classList.add('active');
+                updateRoom({ game_state: gs, is_playing: false });
+                renderGame();
                 return;
             }
 
-            // Apply special effects
-            if (wasDraw2) {
-                state.pendingDraw += 2;
+            // Special effects
+            const wasDraw2 = card.value === 'draw2';
+            const wasWild4 = card.value === 'wild4';
+            const wasSkip = card.value === 'skip';
+            const wasReverse = card.value === 'reverse';
+
+            if (wasDraw2 || wasWild4) {
+                const count = wasDraw2 ? 2 : 4;
                 Sound.draw();
-                showToast(`${player.name} played Draw 2!`, '➕2', 1000);
-            } else if (wasWild4) {
-                state.pendingDraw += 4;
-                Sound.wild();
-                showToast(`${player.name} played Wild Draw 4!`, '➕4', 1000);
-            } else if (wasSkip) {
+                showToast(`${player.name} played ${wasDraw2 ? 'Draw 2' : 'Wild Draw 4'}!`, '➕', 1000);
+                // Next player draws
+                let nextIdx = (playerIdx + gs.direction + players.length) % players.length;
+                const nextPlayer = players[nextIdx];
+                for (let i = 0; i < count; i++) {
+                    if (localState.deck.length === 0) {
+                        // reshuffle
+                        if (gs.discardPile.length > 1) {
+                            const top = gs.discardPile.pop();
+                            localState.deck = shuffleArray(gs.discardPile);
+                            gs.discardPile = [top];
+                        } else {
+                            localState.deck = createDeck();
+                        }
+                    }
+                    if (localState.deck.length > 0) {
+                        nextPlayer.cards.push(localState.deck.pop());
+                    }
+                }
+                gs.deckCount = localState.deck.length;
+                // Skip next player's turn
+                gs.currentTurn = (nextIdx + gs.direction + players.length) % players.length;
+                updateRoom({ players: players, game_state: gs });
+                renderGame();
+                updateTurn();
+                if (players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
+                return;
+            }
+
+            if (wasSkip) {
                 Sound.skip();
                 showToast(`${player.name} played Skip!`, '⏭️', 800);
-                // Skip next player
-                state.currentTurn = getNextPlayer();
+                gs.currentTurn = (playerIdx + gs.direction + players.length) % players.length;
+                // Skip the next player (advance one more)
+                gs.currentTurn = (gs.currentTurn + gs.direction + players.length) % players.length;
+                updateRoom({ players: players, game_state: gs });
                 renderGame();
                 updateTurn();
-                if (state.players[state.currentTurn].isAI) scheduleAITurn();
+                if (players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
                 return;
-            } else if (wasReverse) {
-                Sound.reverse();
-                state.direction *= -1;
-                showToast(`Direction reversed!`, '⟳', 800);
-                // In 2-player, reverse acts like skip
-                if (state.players.length === 2) {
-                    state.currentTurn = getNextPlayer();
-                    renderGame();
-                    updateTurn();
-                    if (state.players[state.currentTurn].isAI) scheduleAITurn();
-                    return;
-                }
             }
 
-            // Advance turn
-            renderGame();
-            if (state.pendingDraw > 0) {
-                // Draw penalty applied to next player
-                advanceTurn();
-            } else {
-                state.currentTurn = getNextPlayer();
+            if (wasReverse) {
+                Sound.reverse();
+                gs.direction *= -1;
+                showToast(`Direction reversed!`, '⟳', 800);
+                if (players.length === 2) {
+                    // In 2-player, reverse acts like skip
+                    gs.currentTurn = (playerIdx + gs.direction + players.length) % players.length;
+                    gs.currentTurn = (gs.currentTurn + gs.direction + players.length) % players.length;
+                } else {
+                    gs.currentTurn = (playerIdx + gs.direction + players.length) % players.length;
+                }
+                updateRoom({ players: players, game_state: gs });
                 renderGame();
                 updateTurn();
-                if (state.players[state.currentTurn].isAI) scheduleAITurn();
+                if (players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
+                return;
             }
+
+            // Normal turn
+            gs.currentTurn = (playerIdx + gs.direction + players.length) % players.length;
+            updateRoom({ players: players, game_state: gs });
+            renderGame();
+            updateTurn();
+            if (players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
         }
 
-        // ----- DRAW CARD -----
+        function selectWildColor(color) {
+            document.getElementById('colorPickerOverlay').classList.remove('active');
+            if (!localState.pendingWild) return;
+            const { playerIdx, cardIndex, card } = localState.pendingWild;
+            localState.pendingWild = null;
+            playCard(playerIdx, cardIndex, color);
+        }
+
         function drawCard() {
-            if (state.isProcessing || state.gameOver) return;
-            const p = getCurrentPlayer();
-            if (p.isAI) return;
-            if (state.currentTurn !== 0) {
+            if (localState.isProcessing || localState.gameState?.gameOver) return;
+            const me = localState.players.find(p => p.id === localState.myPlayerId);
+            if (!me) return;
+            const gs = localState.gameState;
+            if (gs.currentTurn !== localState.players.indexOf(me)) {
                 showToast('Not your turn!', '⏳', 800);
                 return;
             }
-            if (state.pendingWild) {
-                showToast('Choose a color first!', '🎨', 800);
-                return;
+            if (localState.deck.length === 0) {
+                if (gs.discardPile.length > 1) {
+                    const top = gs.discardPile.pop();
+                    localState.deck = shuffleArray(gs.discardPile);
+                    gs.discardPile = [top];
+                } else {
+                    localState.deck = createDeck();
+                }
             }
-
-            const card = drawFromDeck();
+            const card = localState.deck.pop();
             if (card) {
-                p.cards.push(card);
+                me.cards.push(card);
+                gs.deckCount = localState.deck.length;
                 Sound.draw();
                 showToast('You drew a card!', '📥', 800);
-                renderGame();
-
-                // Check if drawn card is playable
-                const top = getTopCard();
-                const colorToMatch = state.currentColor || (top ? top.color : null);
-                if (isPlayable(card, top, colorToMatch)) {
-                    // Auto-play option: highlight the card, but let user play it manually
+                // Check if playable
+                const topCard = gs.discardPile[gs.discardPile.length - 1] || null;
+                const colorToMatch = gs.currentColor || (topCard ? topCard.color : null);
+                if (isPlayable(card, topCard, colorToMatch)) {
                     showToast('You can play the drawn card!', '🎯', 1200);
-                    // We'll just let the user click it
                 } else {
                     // Skip turn
-                    state.currentTurn = getNextPlayer();
+                    gs.currentTurn = (gs.currentTurn + gs.direction + localState.players.length) % localState.players
+                    .length;
+                    updateRoom({ players: localState.players, game_state: gs });
                     renderGame();
                     updateTurn();
-                    if (state.players[state.currentTurn].isAI) scheduleAITurn();
+                    if (localState.players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
                 }
+                updateRoom({ players: localState.players, game_state: gs });
+                renderGame();
             } else {
                 showToast('Deck is empty!', '🃏', 800);
             }
         }
 
-        // ----- SELECT WILD COLOR -----
-        function selectWildColor(color) {
-            document.getElementById('colorPickerOverlay').classList.remove('active');
-            if (!state.pendingWild) return;
-            const { playerIdx, cardIndex, card } = state.pendingWild;
-            state.pendingWild = null;
-            playCard(playerIdx, cardIndex, color);
-        }
-
-        // ----- AI LOGIC -----
-        function scheduleAITurn() {
-            if (state.isProcessing || state.gameOver) return;
-            const p = getCurrentPlayer();
-            if (!p.isAI) return;
-            state.isProcessing = true;
-
-            // Random delay 600-1800ms
-            const delay = 600 + Math.random() * 1200;
-            clearTimeout(state.turnTimeout);
-            state.turnTimeout = setTimeout(() => {
-                if (state.gameOver || !state.isPlaying) { state.isProcessing = false; return; }
-                doAITurn();
-            }, delay);
-        }
-
+        // ----- AI TURN -----
         function doAITurn() {
-            if (state.isProcessing) return;
-            state.isProcessing = true;
-            const p = getCurrentPlayer();
-            if (!p.isAI) { state.isProcessing = false; return; }
+            if (localState.isProcessing || localState.gameState?.gameOver) return;
+            const gs = localState.gameState;
+            const players = localState.players;
+            const ai = players[gs.currentTurn];
+            if (!ai || !ai.isAI) return;
+            localState.isProcessing = true;
 
-            const top = getTopCard();
-            const colorToMatch = state.currentColor || (top ? top.color : null);
-
-            // Find playable cards
-            const playable = [];
-            p.cards.forEach((card, idx) => {
-                if (isPlayable(card, top, colorToMatch)) {
-                    playable.push({ card, idx });
-                }
-            });
-
-            // Sort playable: wild4 > wild > special > color match
-            playable.sort((a, b) => {
-                const score = (c) => {
-                    if (c.value === 'wild4') return 5;
-                    if (c.value === 'wild') return 4;
-                    if (c.value === 'draw2') return 3;
-                    if (c.value === 'skip' || c.value === 'reverse') return 2;
-                    if (c.color === colorToMatch) return 1;
-                    return 0;
-                };
-                return score(b.card) - score(a.card);
-            });
-
-            if (playable.length > 0) {
-                // Play best card
-                const best = playable[0];
-                if (best.card.color === 'wild') {
-                    // Choose best color (most cards in hand)
-                    const colorCount = { red: 0, yellow: 0, green: 0, blue: 0 };
-                    p.cards.forEach(c => {
-                        if (c.color !== 'wild') colorCount[c.color] = (colorCount[c.color] || 0) + 1;
-                    });
-                    let bestColor = 'red';
-                    let maxCount = 0;
-                    Object.keys(colorCount).forEach(c => {
-                        if (colorCount[c] > maxCount) { maxCount = colorCount[c];
-                            bestColor = c; }
-                    });
-                    playCard(state.currentTurn, best.idx, bestColor);
-                } else {
-                    playCard(state.currentTurn, best.idx);
-                }
-                state.isProcessing = false;
-            } else {
-                // Draw a card
-                const card = drawFromDeck();
-                if (card) {
-                    p.cards.push(card);
-                    Sound.draw();
-                    renderGame();
-                    // Check if drawn card is playable
-                    if (isPlayable(card, top, colorToMatch)) {
-                        // Play it
-                        const idx = p.cards.length - 1;
-                        if (card.color === 'wild') {
-                            const colorCount = { red: 0, yellow: 0, green: 0, blue: 0 };
-                            p.cards.forEach(c => {
-                                if (c.color !== 'wild') colorCount[c.color] = (colorCount[c.color] || 0) + 1;
-                            });
-                            let bestColor = 'red';
-                            let maxCount = 0;
-                            Object.keys(colorCount).forEach(c => {
-                                if (colorCount[c] > maxCount) { maxCount = colorCount[c];
-                                    bestColor = c; }
-                            });
-                            playCard(state.currentTurn, idx, bestColor);
-                        } else {
-                            playCard(state.currentTurn, idx);
-                        }
-                        state.isProcessing = false;
-                        return;
+            setTimeout(() => {
+                if (localState.gameState?.gameOver) { localState.isProcessing = false; return; }
+                const topCard = gs.discardPile[gs.discardPile.length - 1] || null;
+                const colorToMatch = gs.currentColor || (topCard ? topCard.color : null);
+                const playable = [];
+                ai.cards.forEach((card, idx) => {
+                    if (isPlayable(card, topCard, colorToMatch)) {
+                        playable.push({ card, idx });
                     }
+                });
+                playable.sort((a, b) => {
+                    const score = (c) => {
+                        if (c.value === 'wild4') return 5;
+                        if (c.value === 'wild') return 4;
+                        if (c.value === 'draw2') return 3;
+                        if (c.value === 'skip' || c.value === 'reverse') return 2;
+                        if (c.color === colorToMatch) return 1;
+                        return 0;
+                    };
+                    return score(b.card) - score(a.card);
+                });
+
+                if (playable.length > 0) {
+                    const best = playable[0];
+                    if (best.card.color === 'wild') {
+                        const colorCount = { red: 0, yellow: 0, green: 0, blue: 0 };
+                        ai.cards.forEach(c => {
+                            if (c.color !== 'wild') colorCount[c.color] = (colorCount[c.color] || 0) + 1;
+                        });
+                        let bestColor = 'red';
+                        let maxCount = 0;
+                        Object.keys(colorCount).forEach(c => {
+                            if (colorCount[c] > maxCount) { maxCount = colorCount[c];
+                                bestColor = c; }
+                        });
+                        playCard(gs.currentTurn, best.idx, bestColor);
+                    } else {
+                        playCard(gs.currentTurn, best.idx);
+                    }
+                    localState.isProcessing = false;
+                } else {
+                    // Draw
+                    if (localState.deck.length === 0) {
+                        if (gs.discardPile.length > 1) {
+                            const top = gs.discardPile.pop();
+                            localState.deck = shuffleArray(gs.discardPile);
+                            gs.discardPile = [top];
+                        } else {
+                            localState.deck = createDeck();
+                        }
+                    }
+                    const card = localState.deck.pop();
+                    if (card) {
+                        ai.cards.push(card);
+                        gs.deckCount = localState.deck.length;
+                        Sound.draw();
+                        renderGame();
+                        if (isPlayable(card, topCard, colorToMatch)) {
+                            const idx = ai.cards.length - 1;
+                            if (card.color === 'wild') {
+                                const colorCount = { red: 0, yellow: 0, green: 0, blue: 0 };
+                                ai.cards.forEach(c => {
+                                    if (c.color !== 'wild') colorCount[c.color] = (colorCount[c.color] || 0) +
+                                        1;
+                                });
+                                let bestColor = 'red';
+                                let maxCount = 0;
+                                Object.keys(colorCount).forEach(c => {
+                                    if (colorCount[c] > maxCount) { maxCount = colorCount[c];
+                                        bestColor = c; }
+                                });
+                                playCard(gs.currentTurn, idx, bestColor);
+                            } else {
+                                playCard(gs.currentTurn, idx);
+                            }
+                            localState.isProcessing = false;
+                            return;
+                        }
+                    }
+                    // Skip turn
+                    showToast(`${ai.name} drew and passed.`, '📥', 800);
+                    gs.currentTurn = (gs.currentTurn + gs.direction + players.length) % players.length;
+                    updateRoom({ players: players, game_state: gs });
+                    renderGame();
+                    updateTurn();
+                    localState.isProcessing = false;
+                    if (players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
                 }
-                // Skip turn
-                showToast(`${p.name} drew a card and passed.`, '📥', 800);
-                state.currentTurn = getNextPlayer();
-                renderGame();
-                updateTurn();
-                state.isProcessing = false;
-                if (state.players[state.currentTurn].isAI) {
-                    scheduleAITurn();
-                }
-            }
-        }
-
-        // ----- END GAME -----
-        function endGame(winner) {
-            state.gameOver = true;
-            state.isPlaying = false;
-            clearTimeout(state.turnTimeout);
-            Sound.win();
-
-            // Confetti
-            startConfetti();
-
-            document.getElementById('winnerName').textContent = winner.name;
-            document.getElementById('winnerOverlay').classList.add('active');
-
-            // Update player count with stars
-            const stars = winner.isAI ? '🤖' : '⭐';
-            document.querySelector('.w-stars').textContent = winner.isAI ? '🤖 AI Champion' : '⭐⭐⭐⭐⭐';
-
-            showToast(`🎉 ${winner.name} wins!`, '🏆', 3000);
+            }, 600 + Math.random() * 1200);
         }
 
         // ----- REMATCH -----
@@ -1697,168 +1913,35 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
             document.getElementById('winnerOverlay').classList.remove('active');
             stopConfetti();
             // Reset game with same players
-            const players = state.players.map(p => ({
+            const players = localState.players.map(p => ({
                 ...p,
                 cards: [],
+                isReady: p.isAI ? true : false,
                 isUno: false,
                 hasCalledUno: false,
-                isReady: true,
             }));
-            initGame(players);
+            const gs = {
+                currentTurn: 0,
+                direction: 1,
+                discardPile: [],
+                deckCount: 108,
+                currentColor: null,
+                currentValue: null,
+                gameOver: false,
+                winner: null,
+            };
+            localState.players = players;
+            localState.gameState = gs;
+            localState.isPlaying = false;
+            localState.deck = [];
+            updateRoom({ players: players, game_state: gs, is_playing: false });
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            renderLobby();
+            showToast('Rematch ready!', '🔄', 1500);
         }
 
-        // ----- DRAW PENALTY (UNO call penalty) -----
-        function callUnoPenalty(playerIdx) {
-            const p = state.players[playerIdx];
-            if (!p) return;
-            if (p.cards.length !== 1) return;
-            if (p.hasCalledUno) return;
-            // Draw 2 penalty
-            for (let i = 0; i < 2; i++) {
-                const card = drawFromDeck();
-                if (card) p.cards.push(card);
-            }
-            p.hasCalledUno = true;
-            p.isUno = false;
-            Sound.penalty();
-            showToast(`${p.name} forgot to say UNO! +2 cards penalty.`, '⚠️', 1800);
-            renderGame();
-        }
-
-        // ============================================================
-        //  RENDERING
-        // ============================================================
-
-        function renderGame() {
-            const players = state.players;
-            const positions = ['pBottom', 'pTop', 'pLeft', 'pRight'];
-
-            players.forEach((p, idx) => {
-                const elId = positions[idx] || `p${idx}`;
-                const el = document.getElementById(elId);
-                if (!el) return;
-
-                const nameEl = el.querySelector('.p-name');
-                const countEl = el.querySelector('.p-card-count');
-                const avatarEl = el.querySelector('.p-avatar');
-
-                if (nameEl) {
-                    nameEl.innerHTML = p.name + (p.isUno ? ' <span class="uno-badge">UNO!</span>' : '');
-                }
-                if (countEl) countEl.textContent = `${p.cards.length} cards`;
-                if (avatarEl) avatarEl.textContent = p.isAI ? '🤖' : '😎';
-
-                // Active turn glow
-                el.classList.toggle('active-turn', idx === state.currentTurn && state.isPlaying && !state.gameOver);
-
-                // Bottom hand
-                if (idx === 0) {
-                    const handEl = document.getElementById('handCards');
-                    if (handEl) {
-                        const top = getTopCard();
-                        const colorToMatch = state.currentColor || (top ? top.color : null);
-                        handEl.innerHTML = p.cards.map((card, ci) => {
-                            const playable = isPlayable(card, top, colorToMatch) && !state.gameOver && state
-                                .isPlaying && state.currentTurn === 0;
-                            const colorCls = cardColorClass(card);
-                            const display = cardDisplay(card);
-                            const emoji = cardEmoji(card);
-                            return `<div class="card-mini ${playable ? 'playable' : ''}" 
-                                      onclick="handleCardClick(${ci})" 
-                                      title="${card.color} ${card.value}">
-                                <div class="card-color ${colorCls}">
-                                  ${display}
-                                </div>
-                              </div>`;
-                        }).join('');
-                    }
-                }
-            });
-
-            // Discard pile
-            const top = getTopCard();
-            const discardEl = document.getElementById('discardCard');
-            if (discardEl && top) {
-                const colorCls = cardColorClass(top);
-                const display = cardDisplay(top);
-                discardEl.className = `pile-card ${colorCls}`;
-                if (top.color === 'wild') {
-                    discardEl.innerHTML = `<span class="wild-text">${top.value === 'wild' ? '🌈' : '➕4'}</span>`;
-                } else {
-                    discardEl.innerHTML = `${display}`;
-                }
-                // Flip animation
-                discardEl.classList.remove('card-flip');
-                void discardEl.offsetWidth;
-                discardEl.classList.add('card-flip');
-            }
-
-            // Deck count
-            document.getElementById('gameDeckCount').textContent = `🃏 ${state.deck.length}`;
-
-            // Direction icon
-            document.getElementById('dirIcon').textContent = state.direction === 1 ? '➡️' : '⬅️';
-
-            // Turn name
-            const current = getCurrentPlayer();
-            document.getElementById('turnName').textContent = current ? current.name : '...';
-        }
-
-        function updateTurn() {
-            const current = getCurrentPlayer();
-            if (current) {
-                document.getElementById('turnName').textContent = current.name;
-                // Highlight
-                document.querySelectorAll('.player-zone').forEach(el => el.classList.remove('active-turn'));
-                const positions = ['pBottom', 'pTop', 'pLeft', 'pRight'];
-                const idx = state.players.indexOf(current);
-                if (idx >= 0) {
-                    const el = document.getElementById(positions[idx]);
-                    if (el) el.classList.add('active-turn');
-                }
-                // If human turn, enable interaction
-                if (current && !current.isAI && !state.gameOver) {
-                    // Enable hand cards
-                    document.querySelectorAll('.card-mini').forEach(el => el.style.pointerEvents = 'auto');
-                } else {
-                    document.querySelectorAll('.card-mini').forEach(el => el.style.pointerEvents = 'none');
-                }
-            }
-            renderGame();
-        }
-
-        // ----- HANDLE CARD CLICK -----
-        function handleCardClick(index) {
-            if (state.isProcessing || state.gameOver) return;
-            const p = state.players[0];
-            if (!p || state.currentTurn !== 0) {
-                showToast('Not your turn!', '⏳', 800);
-                return;
-            }
-            const card = p.cards[index];
-            if (!card) return;
-
-            const top = getTopCard();
-            const colorToMatch = state.currentColor || (top ? top.color : null);
-
-            if (!isPlayable(card, top, colorToMatch)) {
-                showToast('This card cannot be played!', '🚫', 800);
-                return;
-            }
-
-            if (card.color === 'wild') {
-                // Show color picker
-                state.pendingWild = { playerIdx: 0, cardIndex: index, card };
-                document.getElementById('colorPickerOverlay').classList.add('active');
-                return;
-            }
-
-            playCard(0, index);
-        }
-
-        // ============================================================
-        //  CONFETTI
-        // ============================================================
+        // ----- CONFETTI -----
         let confettiInterval = null;
         let confettiPieces = [];
         let confettiCanvas = null;
@@ -1871,7 +1954,6 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
             confettiCtx = canvas.getContext('2d');
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
-
             confettiPieces = [];
             const colors = ['#ff3b3b', '#f4c542', '#3bff6b', '#3b7bc9', '#ff6bdb', '#ff8c42', '#42f5e3'];
             for (let i = 0; i < 120; i++) {
@@ -1887,7 +1969,6 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
                     rv: (Math.random() - 0.5) * 8,
                 });
             }
-
             if (confettiInterval) clearInterval(confettiInterval);
             confettiInterval = setInterval(() => {
                 if (!confettiCtx || !confettiCanvas) return;
@@ -1907,7 +1988,6 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
                     confettiCtx.restore();
                 });
                 if (!alive) {
-                    // Reset
                     confettiPieces.forEach(p => {
                         p.y = -20 - Math.random() * 40;
                         p.x = Math.random() * confettiCanvas.width;
@@ -1928,220 +2008,70 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
         }
 
         // ============================================================
-        //  LOBBY (simulated multiplayer)
+        //  SOLO (offline) MODE
         // ============================================================
-
-        let lobbyPlayers = [];
-        let isHost = true;
-        let roomCode = '';
-
-        function showLobby() {
-            roomCode = 'UNO-' + uid() + uid().substring(0, 2);
-            document.getElementById('roomCode').textContent = roomCode;
-            document.getElementById('homeScreen').classList.add('hidden');
-            document.getElementById('lobbyScreen').classList.remove('hidden');
-
-            // Initialize lobby with host + 3 AI
-            lobbyPlayers = [
-                { id: 1, name: 'You', isAI: false, isReady: false, isHost: true, avatar: '😎' },
-                { id: 2, name: 'R2-D2', isAI: true, isReady: false, isHost: false, avatar: '🤖' },
-                { id: 3, name: 'C-3PO', isAI: true, isReady: false, isHost: false, avatar: '🤖' },
-                { id: 4, name: 'BB-8', isAI: true, isReady: false, isHost: false, avatar: '🤖' },
-            ];
-            // Add extra AI for more players
-            // lobbyPlayers.push({ id:5, name:'L3-37', isAI:true, isReady:false, isHost:false, avatar:'🤖' });
-            renderLobby();
-            showToast('Lobby created! Share the code.', '🏠', 1500);
-            Sound.click();
-        }
-
-        function joinRoom() {
-            const code = prompt('Enter room code:');
-            if (!code) return;
-            roomCode = code.toUpperCase();
-            document.getElementById('roomCode').textContent = roomCode;
-            document.getElementById('homeScreen').classList.add('hidden');
-            document.getElementById('lobbyScreen').classList.remove('hidden');
-
-            // Join as guest with AI
-            lobbyPlayers = [
-                { id: 1, name: 'You', isAI: false, isReady: false, isHost: false, avatar: '😎' },
-                { id: 2, name: 'K-2SO', isAI: true, isReady: false, isHost: false, avatar: '🤖' },
-                { id: 3, name: 'Chopper', isAI: true, isReady: false, isHost: false, avatar: '🤖' },
-                { id: 4, name: 'D-O', isAI: true, isReady: false, isHost: false, avatar: '🤖' },
-            ];
-            isHost = false;
-            renderLobby();
-            showToast(`Joined room ${roomCode}`, '🔗', 1500);
-        }
-
-        function renderLobby() {
-            const container = document.getElementById('lobbyPlayers');
-            container.innerHTML = lobbyPlayers.map(p => `
-                <div class="lobby-player ${p.isReady ? 'ready' : ''}">
-                  ${p.isHost ? '<div class="crown">👑</div>' : ''}
-                  <div class="avatar">${p.avatar}</div>
-                  <div class="name">${p.name} ${p.isAI ? '🤖' : ''}</div>
-                  <div class="status">${p.isReady ? '✅ Ready' : '⏳ Waiting'}</div>
-                </div>
-              `).join('');
-
-            document.getElementById('lobbyPlayerCount').textContent = `${lobbyPlayers.length}/8`;
-
-            // Ready button
-            const btn = document.getElementById('readyBtn');
-            const you = lobbyPlayers.find(p => !p.isAI);
-            if (you) {
-                btn.textContent = you.isReady ? '✅ Ready' : '⏳ Not Ready';
-                btn.classList.toggle('is-ready', you.isReady);
-            }
-
-            // Start button (host only)
-            const startBtn = document.getElementById('startBtn');
-            const allReady = lobbyPlayers.every(p => p.isReady || p.isAI);
-            startBtn.disabled = !(isHost && allReady && lobbyPlayers.length >= 2);
-            if (isHost && allReady && lobbyPlayers.length >= 2) {
-                startBtn.style.opacity = '1';
-            } else {
-                startBtn.style.opacity = '0.5';
-            }
-        }
-
-        function toggleReady() {
-            const you = lobbyPlayers.find(p => !p.isAI);
-            if (you) {
-                you.isReady = !you.isReady;
-                Sound.click();
-                renderLobby();
-                if (you.isReady) showToast('You are ready!', '✅', 800);
-            }
-        }
-
-        function startGame() {
-            if (!isHost) { showToast('Only host can start!', '👑', 800); return; }
-            const allReady = lobbyPlayers.every(p => p.isReady || p.isAI);
-            if (!allReady || lobbyPlayers.length < 2) {
-                showToast('Everyone must be ready!', '⚠️', 800);
-                return;
-            }
-            Sound.click();
-            document.getElementById('lobbyScreen').classList.add('hidden');
-            document.getElementById('gameScreen').classList.remove('hidden');
-
-            // Convert lobby players to game players
-            const players = lobbyPlayers.map((p, idx) => {
-                const isAI = p.isAI || false;
-                const name = p.isAI ? (AI_NAMES[idx % AI_NAMES.length] || `AI ${idx}`) : p.name;
-                return createPlayer(name, isAI, idx === 0);
-            });
-
-            // Ensure at least 2 players
-            while (players.length < 2) {
-                players.push(createPlayer(AI_NAMES[players.length % AI_NAMES.length], true, false));
-            }
-
-            initGame(players);
-        }
-
-        function leaveLobby() {
-            document.getElementById('lobbyScreen').classList.add('hidden');
-            document.getElementById('homeScreen').classList.remove('hidden');
-            showToast('Left lobby.', '👋', 1000);
-        }
-
-        function copyRoomCode() {
-            const code = document.getElementById('roomCode').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                showToast('Room code copied!', '📋', 1000);
-            }).catch(() => {
-                prompt('Copy this code:', code);
-            });
-        }
-
-        function sendChat() {
-            const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            if (!msg) return;
-            input.value = '';
-            const chat = document.getElementById('lobbyChat');
-            const div = document.createElement('div');
-            div.className = 'msg';
-            div.innerHTML = `<strong>You:</strong> ${msg}`;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-            // Simulate AI response sometimes
-            if (Math.random() > 0.5) {
-                setTimeout(() => {
-                    const ai = lobbyPlayers.find(p => p.isAI);
-                    if (ai) {
-                        const responses = ['Nice!', 'UNO!', 'Good game!', 'Let\'s play!', '😎', '🔥'];
-                        const r = responses[Math.floor(Math.random() * responses.length)];
-                        const div2 = document.createElement('div');
-                        div2.className = 'msg';
-                        div2.innerHTML = `<strong>${ai.name}:</strong> ${r}`;
-                        chat.appendChild(div2);
-                        chat.scrollTop = chat.scrollHeight;
-                    }
-                }, 400 + Math.random() * 600);
-            }
-        }
-
-        // ----- SOLO GAME (quick start) -----
         function startSoloGame() {
             document.getElementById('homeScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
-
+            // Create local players
             const players = [
-                createPlayer('You', false, true),
-                createPlayer('R2-D2', true, false),
-                createPlayer('C-3PO', true, false),
-                createPlayer('BB-8', true, false),
+                { id: 'p1', name: 'You', cards: [], isAI: false, isHost: true, isReady: true },
+                { id: 'ai1', name: 'R2-D2', cards: [], isAI: true, isReady: true, isHost: false },
+                { id: 'ai2', name: 'C-3PO', cards: [], isAI: true, isReady: true, isHost: false },
+                { id: 'ai3', name: 'BB-8', cards: [], isAI: true, isReady: true, isHost: false },
             ];
-            initGame(players);
+            localState.players = players;
+            localState.myPlayerId = 'p1';
+            localState.roomId = null;
+            const deck = createDeck();
+            const gs = {
+                currentTurn: 0,
+                direction: 1,
+                discardPile: [],
+                deckCount: deck.length,
+                currentColor: null,
+                currentValue: null,
+                gameOver: false,
+                winner: null,
+            };
+            players.forEach(p => p.cards = []);
+            for (let i = 0; i < 7; i++) {
+                players.forEach(p => {
+                    if (deck.length > 0) p.cards.push(deck.pop());
+                });
+            }
+            let first = deck.pop();
+            while (first && (first.value === 'wild' || first.value === 'wild4' || first.value === 'draw2' || first.value ===
+                    'skip' || first.value === 'reverse')) {
+                deck.unshift(first);
+                first = deck.pop();
+            }
+            if (first) {
+                gs.discardPile.push(first);
+                gs.currentColor = first.color === 'wild' ? 'red' : first.color;
+                gs.currentValue = first.value;
+            } else {
+                const fallback = { color: 'red', value: '0', id: 'fallback' };
+                gs.discardPile.push(fallback);
+                gs.currentColor = 'red';
+                gs.currentValue = '0';
+            }
+            gs.deckCount = deck.length;
+            localState.deck = deck;
+            localState.gameState = gs;
+            localState.isPlaying = true;
+            renderGame();
+            updateTurn();
             showToast('Solo mode vs AI!', '🤖', 1500);
+            if (players[gs.currentTurn].isAI) setTimeout(() => doAITurn(), 800);
         }
 
         // ============================================================
-        //  INIT & KEYBOARD SHORTCUTS
+        //  INIT
         // ============================================================
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'd' || e.key === 'D') {
-                if (!document.getElementById('gameScreen').classList.contains('hidden')) {
-                    drawCard();
-                }
-            }
-            if (e.key === 'r' || e.key === 'R') {
-                if (!document.getElementById('gameScreen').classList.contains('hidden')) {
-                    // rematch shortcut
-                }
-            }
-        });
-
-        // Handle resize for confetti
-        window.addEventListener('resize', () => {
-            if (confettiCanvas) {
-                const container = confettiCanvas.parentElement;
-                confettiCanvas.width = container.clientWidth;
-                confettiCanvas.height = container.clientHeight;
-            }
-        });
-
-        // ----- INIT -----
-        console.log('🃏 UNO Game loaded!');
-        console.log('🎯 Play solo vs AI or create a lobby.');
-        console.log('⌨️  Press D to draw a card.');
-
-        // Show home
-        document.getElementById('homeScreen').classList.remove('hidden');
-
-        // Auto-show toast
-        setTimeout(() => showToast('Welcome to UNO! 🎴', '👋', 2000), 400);
-
-        // ============================================================
-        //  EXPOSE for inline onclick
-        // ============================================================
-        window.showLobby = showLobby;
+        console.log('🃏 UNO ready!');
+        // Expose functions to global
+        window.createRoom = createRoom;
         window.joinRoom = joinRoom;
         window.startSoloGame = startSoloGame;
         window.toggleReady = toggleReady;
@@ -2154,7 +2084,10 @@ const supabase = supabase.createClient(https://dsathvara2006-code.github.io/uno-
         window.selectWildColor = selectWildColor;
         window.rematch = rematch;
         window.playCard = playCard;
-        window.callUnoPenalty = callUnoPenalty;
+
+        // Show home
+        document.getElementById('homeScreen').classList.remove('hidden');
+        setTimeout(() => showToast('Welcome to UNO! 🎴', '👋', 2000), 400);
     </script>
 </body>
 </html>
